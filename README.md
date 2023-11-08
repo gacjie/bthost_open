@@ -9,3 +9,4 @@ btHost宝塔主机控制端
 
 API文档：[API接口文档](https://docs.apipost.cn/view/bad40855d7b411f5#2685899)
 
+btHost-宝塔主机交流③群 512646927

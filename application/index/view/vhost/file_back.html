@@ -1,0 +1,126 @@
+{extend name="common/base" /}
+
+{block name="content"}
+<link href="__CDN____STATIC__/Light-Year/js/bootstrap-table/bootstrap-table.min.css?v={$static_version}" rel="stylesheet">
+<div class="row">
+
+    <div class="col-lg-12">
+        <div class="card">
+            <header class="card-header">
+                <div class="card-title">在线文件管理</div>
+            </header>
+            <div class="card-body">
+                <div id="toolbar" class="toolbar-btn-action">
+                    <button id="btn_add" type="button" class="btn btn-primary m-r-5">
+                        <span class="mdi mdi-plus" aria-hidden="true"></span>新增
+                    </button>
+                    <button id="btn_edit" type="button" class="btn btn-success m-r-5">
+                        <span class="mdi mdi-check" aria-hidden="true"></span>启用
+                    </button>
+                    <button id="btn_edit" type="button" class="btn btn-warning m-r-5">
+                        <span class="mdi mdi-block-helper" aria-hidden="true"></span>禁用
+                    </button>
+                    <button id="btn_delete" type="button" class="btn btn-danger">
+                        <span class="mdi mdi-window-close" aria-hidden="true"></span>删除
+                    </button>
+                </div>
+                <table id="tb_departments"></table>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/bootstrap-table/bootstrap-table.min.js?v={$static_version}"></script>
+<script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/bootstrap-table/locale/bootstrap-table-zh-CN.min.js?v={$static_version}">
+</script>
+<script type="text/javascript">
+    $('#tb_departments').bootstrapTable({
+        classes: 'table table-hover table-striped',
+        url: '?path={$viewpath|default="/"}',
+        method: 'get',
+        dataType: 'jsonp', // 因为本示例中是跨域的调用,所以涉及到ajax都采用jsonp,
+        uniqueId: 'id',
+        idField: 'id', // 每行的唯一标识字段
+        toolbar: '#toolbar', // 工具按钮容器
+        //clickToSelect: true,     // 是否启用点击选中行
+        showColumns: true, // 是否显示所有的列
+        showRefresh: true, // 是否显示刷新按钮
+
+        showToggle: true, // 是否显示详细视图和列表视图的切换按钮(clickToSelect同时设置为true时点击会报错)
+
+        pagination: true, // 是否显示分页
+        sortOrder: "asc", // 排序方式
+        queryParams: function (params) {
+            var temp = {
+                limit: params.limit, // 每页数据量
+                offset: params.offset, // sql语句起始索引
+                page: (params.offset / params.limit) + 1,
+                sort: params.sort, // 排序的列名
+                sortOrder: params.order // 排序方式'asc' 'desc'
+            };
+            return temp;
+        }, // 传递参数
+        sidePagination: "server", // 分页方式：client客户端分页，server服务端分页
+        pageNumber: 1, // 初始化加载第一页，默认第一页
+        pageSize: 10, // 每页的记录行数
+        pageList: [10, 25, 50, 100], // 可供选择的每页的行数
+        //search: true,                      // 是否显示表格搜索，此搜索是客户端搜索
+
+        //showExport: true,        // 是否显示导出按钮, 导出功能需要导出插件支持(tableexport.min.js)
+        //exportDataType: "basic", // 导出数据类型, 'basic':当前页, 'all':所有数据, 'selected':选中的数据
+        locale:Config.language == 'zh-cn' ? 'zh-CN' : 'en-US',
+        columns: [{
+            field: 'example',
+            checkbox: true // 是否显示复选框
+        }, {
+            field: 'name',
+            title: '文件名'
+        }, {
+            field: 'size',
+            title: '大小',
+        }, {
+            field: 'time',
+            title: '修改时间'
+        }, {
+            field: 'auths',
+            title: '权限'
+        }, {
+            field: 'group',
+            title: '所有者'
+        }, {
+            field: 'operate',
+            title: '操作',
+            formatter: btnGroup, // 自定义方法
+            events: {
+                'click .edit-btn': function (event, value, row, index) {
+                    editUser(row);
+                },
+                'click .del-btn': function (event, value, row, index) {
+                    delUser(row);
+                }
+            }
+        }],
+        onLoadSuccess: function (data) {
+            $("[data-toggle='tooltip']").tooltip();
+        }
+    });
+
+    // 操作按钮
+    function btnGroup() {
+        let html =
+            '<a href="#!" class="btn btn-xs btn-default m-r-5 edit-btn" title="编辑" data-toggle="tooltip"><i class="mdi mdi-pencil"></i></a>' +
+            '<a href="#!" class="btn btn-xs btn-default del-btn" title="删除" data-toggle="tooltip"><i class="mdi mdi-window-close"></i></a>';
+        return html;
+    }
+
+    // 操作方法 - 编辑
+    function editUser() {
+        alert('跳转修改信息');
+    }
+    // 操作方法 - 删除
+    function delUser() {
+        alert('信息删除成功');
+    }
+</script>
+{/block}

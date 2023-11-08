@@ -1,0 +1,37 @@
+<form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Domain')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-domain" data-rule="required" class="form-control" name="row[domain]" type="text">
+        </div>
+    </div>
+    <!-- <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Is_All')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            {:build_select('row[is_all]', $alldata, null, ['class'=>'form-control', 'data-rule'=>'required'])}
+            <small class="text-danger">如选择是，用户绑定<code>www.baidu.com</code><code>wwww.baidu.com</code>都将被拦截/通过</small>
+        </div>
+    </div> -->
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Type')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            {:build_select('row[type]', $typedata, null, ['class'=>'form-control', 'data-rule'=>'required'])}
+            <small class="text-success">白名单：用户绑定域名时无需效验是否备案、跳过手动审核</small>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Notice')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <textarea name="row[notice]" id="" cols="30" rows="10" class="form-control"></textarea>
+            <small class="text-info">站长可见备注</small>
+        </div>
+    </div>
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>

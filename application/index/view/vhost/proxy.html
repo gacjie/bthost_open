@@ -1,0 +1,208 @@
+{extend name="common/base" /}
+{block name="content"}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card" id="loading_list">
+            <div class="card-header">
+                <header class="card-title">
+                    {:__('Proxy')}
+                </header>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <form action="" method="post">
+                        <table class="table table-hover" id="proxy_list">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        {:__('Name')}
+                                    </th>
+                                    <th>
+                                        {:__('Agent directory')}
+                                    </th>
+                                    <th>
+                                        {:__('Target Url')}
+                                    </th>
+                                    <th>
+                                        {:__('Cache')}
+                                    </th>
+                                    <th>
+                                        {:__('Status')}
+                                    </th>
+                                    <th style="text-align:right;">
+                                        {:__('Operation')}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {volist name="proxyList" id="proxy"}
+                                <tr>
+                                    <td>
+                                        {$proxy.proxyname}
+                                    </td>
+                                    <td>
+                                        {$proxy.proxydir}
+                                    </td>
+                                    <td>
+                                        {$proxy.proxysite}
+                                    </td>
+                                    <td>
+                                        {if $proxy.cache }
+                                            {:__("Open")}
+                                            {else /}
+                                            {:__("Close")}
+                                        {/if}
+                                    </td>
+                                    <td>
+                                        {if $proxy.advanced }
+                                            {:__("Running")}
+                                            {else /}
+                                            {:__("stop")}
+                                        {/if}
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <a href="javascript:del('{$proxy.proxyname}')"
+                                            class="btn btn-label btn-danger btn-xs">
+                                            <label><i class="mdi mdi-close"></i></label> {:__('Delete')}
+                                        </a>
+                                    </td>
+                                </tr>
+                                {/volist}
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card" id="loading_box">
+            <div class="card-header">
+                <header class="card-title">
+                    {:__('Add proxy')}
+                </header>
+            </div>
+            <div class="card-body">
+                <form id="incPorxy" style="padding: 20px;">
+                    <div class="custom-control custom-checkbox custom-control-inline">
+                        <input name="type" id="type" type="checkbox" class="custom-control-input" />
+                        <label class="custom-control-label" for="type">{:__('Open proxy')}</label>
+                    </div>
+                    <div class="custom-control custom-checkbox custom-control-inline">
+                        <input name="cache" id="cache" type="checkbox" class="custom-control-input" />
+                        <label class="custom-control-label" for="cache">{:__('Enable cache')}</label>
+                    </div>
+                    <div class="custom-control custom-checkbox custom-control-inline">
+                        <input name="advanced" id="advanced" type="checkbox" class="custom-control-input" />
+                        <label class="custom-control-label" for="advanced">{:__('Open proxy directory')}</label>
+                    </div>
+                    <hr>
+                    <div class="form-group">
+                        <label for="proxyname">{:__('Proxy name')}：</label>
+                        <input class="form-control" name="proxyname" id="proxyname" type="text" />
+                    </div>
+                    <label for="cachetime">{:__('Cache Time')}：</label>
+                    <div class="form-group input-group">
+                        <input class="form-control" name="cachetime" id="cachetime" type="number" value="0" />
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="basic-addon2">{:__('Minute')}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="proxydir">{:__('Agent Directory')}：</label>
+                        <input class="form-control" name="proxydir" id="proxydir" type="text" value="/" />
+                    </div>
+                    <div class="form-group">
+                        <label for="proxysite">{:__('Target Url')}：</label>
+                        <input class="form-control" name="proxysite" id="proxysite" type="text"
+                            placeholder="https://www.baidu.com" />
+                    </div>
+                    <div class="form-group">
+                        <label for="todomain">{:__('Send domain')}：</label>
+                        <input class="form-control" name="todomain" id="todomain" type="text"
+                            placeholder="www.baidu.com" />
+                    </div>
+                    <div class="form-group">
+                        <label for="">{:__('Content replacement')}：</label>
+                        <input class="form-control" name="subfiltera" placeholder="{:__('Replaced text, can be left blank')}" type="text" />
+                        <input class="form-control" name="subfilterb" placeholder="{:__('Replace with, can be left blank')}" type="text" />
+                    </div>
+                    <div class="form-group">
+                        <input onclick="inc()" type="button" value="{:__('Submit')}" class="btn btn-warning">
+                    </div>
+                </form>
+                <hr>
+                <small class="text-muted">
+                    <span style="color:red">！</span> {:__('Proxy Directory: When accessing this directory, the content of the target URL will be returned and displayed (advanced features need to be turned on)')}<br>
+                    <span style="color:red">！</span> {:__('Target URL: You can fill in the site you need to proxy. The target URL must be a URL that can be accessed normally, otherwise an error will be returned')}<br>
+                    <span style="color:red">！</span> {:__('Send domain: Add the domain name to the request header and pass it to the proxy server. The default is the target URL domain name. If it is set incorrectly, it may not work properly')} <br>
+                    <span style="color:red">！</span> {:__('Content replacement: only available when using nginx, multiple content is separated by commas, such as sub1, sub2 replaced with str1, str2')} <br>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+{/block}
+{block name="script"}
+<script type="text/javascript">
+    function inc() {
+        data = $('#incPorxy').serialize();
+        var l = $('#loading_box').lyearloading({
+            opacity: 0.125,
+            spinnerSize: 'lg'
+        });
+        $.post('{:url("index/vhost/proxy")}', data, function (data, textStatus, xhr) {
+                if (data.code == 1) {
+                    EchoMsg(data.msg, 1);
+                } else {
+                    EchoMsg(data.msg);
+                }
+            })
+            .fail(function () {
+                EchoMsg('{:__("Request error, please try again later")}');
+            })
+            .always(function () {
+                l.destroy();
+            })
+    }
+
+    function del(name) {
+        $.confirm({
+            title: '{:__("Reminder")}',
+            content: '{:__("Confirm delete?")}',
+            icon: 'mdi mdi-alert',
+            animation: 'scale',
+            closeAnimation: 'zoom',
+            buttons: {
+                confirm: {
+                    text: '{:__("Confirm")}',
+                    btnClass: 'btn-orange',
+                    action: function () {
+                        var l = $('#loading_list').lyearloading({
+                            opacity: 0.125,
+                            spinnerSize: 'lg'
+                        });
+                        $.post('{:url("index/vhost/proxyDel")}', {
+                                proxyname: name
+                            }, function (data, textStatus, xhr) {
+                                EchoMsg(data.msg, 1);
+                            })
+                            .fail(function () {
+                                EchoMsg('{:__("Request error, please try again later")}');
+                            })
+                            .always(function () {
+                                l.destroy();
+                            })
+                    }
+                },
+                '{:__("Cancel")}': function () {
+
+                }
+            }
+        });
+    }
+</script>
+{/block}

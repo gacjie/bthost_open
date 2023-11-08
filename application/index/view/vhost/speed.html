@@ -1,0 +1,178 @@
+{extend name="common/base" /}
+{block name="content"}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card" id="load_status">
+            <div class="card-header">
+                <header class="card-title">
+                    {:__('Speed')}
+                </header>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th colspan="2">
+                                {:__('Status')}：
+                                {if $netInfo.status }
+                                    <span style="color:green">{:__('Open')}</span><a href="javascript:speedOff()">[{:__('Close')}]</a>
+                                    {else /}
+                                    <span style="color:#2288cc">{:__('Close')}</span>
+                                {/if}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card" id="load_set">
+            <div class="card-header">
+                <header class="card-title">
+                    {:__('Speed setting')}
+                </header>
+            </div>
+            <div class="card-body">
+                <form action="" method="post" >
+                    <div class="form-group row">
+                        <label for="inputEmail3" class="col-sm-1 col-form-label">{:__('Restricted scheme')}：</label>
+                        <div class="col-sm-2">
+                            <select class="bt-input-text mr5 limit form-control" name="limit">
+                                <option value="0">
+                                    {:__('Unlimited speed')}
+                                </option>
+                                <option value="1">
+                                    {:__('Forum/blog')}
+                                </option>
+                                <option value="2">
+                                    {:__('Picture Station')}
+                                </option>
+                                <option value="3">
+                                    {:__('Download station')}
+                                </option>
+                                <option value="4">
+                                    {:__('Mall website')}
+                                </option>
+                                <option value="5">
+                                    {:__('Portal')}
+                                </option>
+                                <option value="6">
+                                    {:__('Corporate website')}
+                                </option>
+                                <option value="7">
+                                    {:__('Video site')}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="inputEmail3" class="col-sm-1 col-form-label">{:__('Concurrency limited')}：</label>
+                        <div class="col-sm-2">
+                            <input class="form-control" id="perserver" name="perserver"
+                                value="{$netInfo.perserver?$netInfo.perserver:'0'}">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="inputEmail3" class="col-sm-1 col-form-label">{:__('Single IP limited')}：</label>
+                        <div class="col-sm-2">
+                            <input class="form-control" id="perip" name="perip"
+                                value="{$netInfo.perip?$netInfo.perip:'0'}">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="inputEmail3" class="col-sm-1 col-form-label">{:__('Flow limited')}：</label>
+                        <div class="col-sm-2">
+                            <input class="form-control" id="limit_rate" name="limit_rate"
+                                value="{$netInfo.limit_rate?$netInfo.limit_rate:'0'}">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-10">
+                            <input class="btn btn-warning" onclick="speedUp()" type="button" value="{:__('Save')}" />
+                        </div>
+                    </div>
+                    <hr>
+                    <small class="text-muted">
+                        <span style="color:red">！</span> {:__('Concurrency limited: Limits the maximum number of concurrent users on the current site')}<br>
+                        <span style="color:red">！</span> {:__('Single IP limited: limit the maximum number of concurrent access for a single IP')}<br>
+                        <span style="color:red">！</span> {:__('Flow limited: limit the upper limit of the traffic per request (unit: KB)')}<br>
+                    </small>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{/block}
+{block name="script"}
+<script type="text/javascript">
+    $("select[name='limit']").change(function () {
+        var type = $(this).val();
+        var speedArr = [
+            [0, 0, 0],
+            [300, 25, 512],
+            [200, 10, 1024],
+            [500, 3, 2048],
+            [500, 10, 2048],
+            [400, 15, 1024],
+            [60, 10, 512],
+            [150, 4, 1024]
+        ];
+
+        $("input[name='perserver']").val(speedArr[type][0]);
+        $("input[name='perip']").val(speedArr[type][1]);
+        $("input[name='limit_rate']").val(speedArr[type][2]);
+
+    });
+
+    function speedUp() {
+        perserver = $('#perserver').val();
+        perip = $('#perip').val();
+        limit_rate = $('#limit_rate').val();
+        if (!perserver || !perip || !limit_rate) {
+            EchoMsg('{:__("Can not be empty")}');
+            return false;
+        }
+        var l = $('#load_set').lyearloading({
+            opacity: 0.125,
+            spinnerSize: 'lg'
+        });
+        $.post('{:url("index/vhost/speedUp")}', {
+            perserver: perserver,
+            perip: perip,
+            limit_rate: limit_rate
+        }, function (res) {
+            EchoMsg(res.msg, 1);
+        })
+        .fail(function () {
+            EchoMsg('{:__("Request error, please try again later")}');
+        })
+        .always(function () {
+            l.destroy();
+        })
+    }
+
+    function speedOff() {
+        var l = $('#load_status').lyearloading({
+            opacity: 0.125,
+            spinnerSize: 'lg'
+        });
+        $.post('{:url("index/vhost/speedOff")}', {
+            speed: 'off'
+        }, function (res) {
+            EchoMsg(res.msg, 1);
+        })
+        .fail(function () {
+            EchoMsg('{:__("Request error, please try again later")}');
+        })
+        .always(function () {
+            l.destroy();
+        })
+    }
+</script>
+{/block}

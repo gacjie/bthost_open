@@ -1,0 +1,203 @@
+{extend name="common/base" /}
+{block name="content"}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <header class="card-title">
+                    {:__('Task add')}
+                </header>
+            </div>
+            <div class="card-body" id="loading_add">
+                <form action="" method="post">
+                    <div class="form-group">
+                        <label for="sType">{:__('Task type')}：</label>
+                        <select name="sType" id="sType" class="form-control">
+                            {volist name="task_type" id="vo"}
+                            <option value="{$key}">{$vo}</option>
+                            {/volist}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="name">{:__('Task name')}：</label>
+                        <input name="name" id="name" class="span3 form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <input type="button" value="{:__('Submit')}" class="btn btn-warning" onclick="task_add()">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <header class="card-title">
+                    {:__('Task list')}
+                </header>
+            </div>
+            <div class="card-body" id="loading_list">
+                {notempty name="task_list"}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <td>{:__('Task name')}</td>
+                            <td>{:__('Cycle')}</td>
+                            <td>{:__('Type')}</td>
+                            <td>{:__('Last execution time')}</td>
+                            <td>{:__('Operation')}</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {volist name="task_list" id="vo"}
+                        <tr>
+                            <td>{$vo.name}</td>
+                            <td>{$vo.cycle}</td>
+                            <td>{:__($vo.sType)}</td>
+                            <td>{:__($vo.addtime)}</td>
+                            <td><a href="javascript:task_log('{$vo.id}')">{:__('View log')}</a> <a
+                                    href="javascript:task_del('{$vo.id}')">{:__('Delete')}</a></td>
+                        </tr>
+                        {/volist}
+                        </tbody>
+                    </table>
+                </div>
+                {else /}
+                无
+                {/notempty}
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="script"}
+<script src="__CDN__/assets/libs/layer/layer.js?v={$static_version}"></script>
+<script type="text/javascript">
+
+    $(function(){
+        $('#sType').change(function(){
+            if($(this).val()=='webshell'){
+                $('#name').val('木马查杀');
+                $('#name').attr('readonly','');
+            }else if($(this).val()=='toUrl'){
+                $('#name').val('');
+                $('#name').removeAttr('readonly');
+            }
+        })
+    });
+
+    function task_log(id) {
+        var l = $('#loading_list').lyearloading({
+            opacity: 0.125,
+            spinnerSize: 'lg'
+        });
+        $.post('{:url("index/vhost/task_log")}', {
+            id: id
+        }, function (res) {
+            if (res.code == 1) {
+                content = '<pre style="font-size:10px">' + res.data + '</pre>';
+                layer.open({
+                    type: 1,
+                    title: '日志',
+                    skin: 'layui-layer-rim', //加上边框
+                    area: [$(window).width() > 800 ? '35%' : '90%', $(window).height() > 600 ? '' : ''], //宽高
+                    content: content
+                });
+            } else {
+                EchoMsg('还没有日志');
+            }
+        })
+            .fail(function () {
+                EchoMsg('{:__("Request error, please try again later")}');
+            })
+            .always(function () {
+                l.destroy();
+            })
+    }
+
+    function task_add() {
+
+        sType = $('#sType').val();
+        name = $('#name').val();
+        if (!sType || !name) {
+            EchoMsg('{:__("Can not be empty")}');
+            return false;
+        }
+        var l = $('#loading_add').lyearloading({
+            opacity: 0.125,
+            spinnerSize: 'lg'
+        });
+        $.post('{:url("index/vhost/task_add")}', {
+            sType: sType,
+            name: name
+        }, function (res) {
+            if (res.code == 1) {
+                EchoMsg(res.msg, 1, '{:url("index/vhost/tasks")}');
+            } else {
+                EchoMsg('error:' + res.msg);
+            }
+        })
+            .fail(function () {
+                EchoMsg('{:__("Request error, please try again later")}');
+            })
+            .always(function () {
+                l.destroy();
+            })
+    }
+
+    function task_del(id) {
+        if (!id) {
+            EchoMsg('{:__("Unexpected situation")}');
+            return false;
+        }
+        $.confirm({
+            title: '{:__("Reminder")}',
+            content: '{:__("Confirm delete?")}',
+            icon: 'mdi mdi-alert',
+            animation: 'scale',
+            closeAnimation: 'zoom',
+            buttons: {
+                confirm: {
+                    text: '{:__("Confirm")}',
+                    btnClass: 'btn-orange',
+                    action: function () {
+                        var l = $('#loading_list').lyearloading({
+                            opacity: 0.125,
+                            spinnerSize: 'lg'
+                        });
+                        $.post('{:url("index/vhost/task_del")}', {
+                            id: id,
+                        }, function (res) {
+                            if (res.code == 1) {
+                                EchoMsg(res.msg, 1, '{:url("index/vhost/tasks")}');
+                            } else {
+                                EchoMsg('error:' + res.msg);
+                            }
+                        })
+                            .fail(function () {
+                                EchoMsg('{:__("Request error, please try again later")}');
+                            })
+                            .always(function () {
+                                l.destroy();
+                            })
+                    }
+                },
+                '{:__("Cancel")}': function () {
+                }
+            }
+        });
+    }
+
+    $(function () {
+        $('#domain').blur(function () {
+            var content = $(this).val();
+            var AllReplace = new RegExp("https|http|ftp|。|：| |/", "g");
+            content = content.replace(AllReplace, "");
+            $(this).val(content);
+        });
+    });
+</script>
+{/block}

@@ -1,0 +1,120 @@
+{extend name="common/base" /}
+{block name="content"}
+<div class="row">
+	<div class="col-md-12">
+		<div class="card" id="loading_off">
+			<div class="card-header">
+				<header class="card-title">
+					{:__('Rewrite 301')}
+				</header>
+			</div>
+			<div class="card-body">
+				<table class="table table-bordered">
+					<thead>
+						<tr>
+							<th colspan="2">{:__('Status')}：
+								{if $rewriteInfo.status }
+									<span style="color:green">{:__('Open')}</span><a href="javascript:rewriteOff()">[{:__('Close')}]</a>
+									{else /}
+									<span style="color:#2288cc">{:__('Close')}</span>
+								{/if}
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+		<div class="card" id="loading_box">
+			<div class="card-header">
+				<header class="card-title">
+					{:__('Rewrite 301 setting')}
+				</header>
+			</div>
+			<div class="card-body">
+				<form action="" method="post">
+					<div class="form-group">
+						<label for="domains">{:__('Domain')}：</label>
+						<select class="bt-input-text mr5 domains form-control" name="domains" id="domains"
+							style="width:260px" {$rewriteInfo.status ? 'disabled' :''}>
+							<option value="all">{:__('All domain')}</option>
+							{volist name="rewriteInfo.domain" id="domain"}
+							<option value="{$domain}" {$domain==$rewriteInfo.src ? 'selected=""' : '' }>
+								{$domain}</option>
+							{/volist}
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="toUrl">{:__('Target Url')}：</label>
+						<input name="toUrl" id="toUrl" class="span3 form-control" value="{$rewriteInfo.url}"
+							style="width:260px;" {$rewriteInfo.status ? 'disabled' :''}>
+					</div>
+					<div class="form-group">
+						<input type="button" value="{:__('Save')}" class="btn btn-warning" {$rewriteInfo.status ? 'disabled'
+							:''} onclick="rewriteUp()">
+					</div>
+				</form>
+				<hr>
+				<small class="text-muted">
+					<li>{:__('When selecting [Entire Site], please do not set the target URL to the domain name under the same site.')}</li>
+					<li>{:__('After canceling the 301 redirect, you need to clear the browser cache to see the effective result.')}</li>
+					<li>{:__('This function has been merged with <code>%s</code>',__('Redir'))}</li>
+				</small>
+			</div>
+		</div>
+	</div>
+</div>
+
+{/block}
+{block name="script"}
+<script type="text/javascript">
+	function rewriteUp() {
+		domains = $('#domains option:selected').val();
+		toUrl = $('#toUrl').val();
+		if (!domains) {
+			EchoMsg('{:__("Request error, please try again later")}');
+			return false;
+		}
+		var l = $('#loading_box').lyearloading({
+			opacity: 0.125,
+			spinnerSize: 'lg'
+		});
+		$.post('{:url("index/vhost/r301Up")}', {
+				domains: domains,
+				toUrl: toUrl
+			}, function (res) {
+				EchoMsg(res.msg, 1);
+			})
+			.fail(function () {
+				EchoMsg('{:__("Request error, please try again later")}');
+			})
+			.always(function () {
+				l.destroy();
+			})
+	}
+
+	function rewriteOff() {
+		var l = $('#loading_off').lyearloading({
+			opacity: 0.125,
+			spinnerSize: 'lg'
+		});
+		$.post('{:url("index/vhost/r301Off")}', {
+				rewrite: 'off'
+			}, function (res) {
+				EchoMsg(res.msg, 1);
+			})
+			.fail(function () {
+				EchoMsg('{:__("Request error, please try again later")}');
+			})
+			.always(function () {
+				l.destroy();
+			})
+	}
+</script>
+{/block}

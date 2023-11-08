@@ -1,0 +1,43 @@
+{extend name="common/base" /}
+{block name="content"}
+<div class="row">
+	<div class="col-md-12">
+		<div class="card">
+			<div class="card-header">
+                <header class="card-title">
+					{:__('Site log')}
+				</header>
+				<a href="?down=1" class="btn btn-info float-right btn-down"><span class="mdi mdi-arrow-collapse-down"></span> {:__('Down site log')}</a>
+            </div>
+			<div class="card-body">
+				{if $logList}
+				<div class="table-responsive">
+					<table class="table table-bordered table-sm">
+						<thead>
+							<tr >
+								<th>{:__('IP')}</th>
+								<th>{:__('Time')}</th>
+								<th>{:__('Request type')}</th>
+								<th>{:__('Request address')}</th>
+								<th>{:__('Status')}</th>
+								<th>{:__('Referer')}</th>
+								<th>{:__('UA')}</th>
+							</tr>
+						</thead>
+						<tbody>
+							{volist name="logList" id="log"}
+							<tr >
+								<td colspan="7">{$log}</td>
+							</tr>
+							{/volist}
+						</tbody>
+					</table>
+				</div>
+				{else /}
+				<h1>{:__('No logs for the current site')}</h1>
+				{/if}
+			</div>
+		</div>
+	</div>
+</div>
+{/block}

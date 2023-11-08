@@ -1,0 +1,525 @@
+<link rel="stylesheet" href="__CDN____STATIC__/css/admin_dashboard.css?v={$Think.config.site.version}">
+<style>
+    .tatolinfo .value{text-align: center;}
+</style>
+<div class="panel panel-default panel-intro">
+    <div class="panel-heading">
+        {:build_heading(null, false)}
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#one" data-toggle="tab">{:__('Dashboard')} <i
+                        class="fa fa-refresh btn-refresh-load" title="刷新"></i></a></li>
+            <li><a href="#two" data-toggle="tab">{:__('Custom')}</a></li>
+        </ul>
+    </div>
+    <div class="panel-body">
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade active in" id="one">
+                <div class="row">
+                    <div class="col-sm-3 col-lg-3">
+                        <div class="panel bg-blue">
+                            <div class="panel-body">
+                                <div class="panel-title">
+                                    <span class="label label-success pull-right">实时</span>
+                                    <h5>负载状态</h5>
+                                </div>
+                                <div class="panel-content">
+                                    <h1 class="no-margins" id="loadOne">Loading……</h1>
+                                    <small id="loadStatus">Loading……</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-lg-3">
+                        <div class="panel bg-teal-gradient">
+                            <div class="panel-body">
+                                <div class="panel-title">
+                                    <span class="label label-success pull-right">实时</span>
+                                    <h5>CPU使用率</h5>
+                                </div>
+                                <div class="panel-content">
+                                    <h1 class="no-margins" id="cpu1">{$GetSystemTotal.cpuNum|default="加载中"}核心</h1>
+                                    <small id="cpu0">Loading……</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-lg-3">
+                        <div class="panel bg-purple-gradient">
+                            <div class="panel-body">
+                                <div class="panel-title">
+                                    <span class="label label-success pull-right">实时</span>
+                                    <h5>内存使用率(MB)</h5>
+                                </div>
+                                <div class="panel-content">
+                                    <h1 class="no-margins" id="mem">Loading……</h1>
+                                    <small id="memBfb">Loading……</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {volist name="GetDiskInfo" id="disk"}
+                    <div class="col-sm-3 col-lg-3">
+                        <div class="panel bg-red-gradient">
+                            <div class="panel-body">
+                                <div class="panel-title">
+                                    <span class="label label-success pull-right">实时</span>
+                                    <h5>{$disk.path|default="--"}</h5>
+                                </div>
+                                <div class="panel-content">
+                                    <h1 class="no-margins">{$disk.size['1']|default="--"}/{$disk.size['0']|default="--"}</h1>
+                                    <small id="memBfb">{$disk.size['3']|default="--"}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {/volist}
+                </div>
+                <div class="row">
+                    <div class="panel">
+                        <div class="panel-heading hostInfo">
+                            <p>
+                                {if $isWindows}<span class="ico-windows"></span>{else/}<span class="ico-centos"></span>{/if}
+                                {$GetSystemTotal.system|default="--"} (Bt.Ver:{$GetSystemTotal.version|default="--"})
+                                {switch name="paidVer.type" }
+                                    {case value='free' }
+                                    <span class="notpro">免费版</span>
+                                    {/case}
+                                    {case value='pro'}
+                                    <span class="ispro">到期时间：
+                                        <span style="color: #fc6d26;font-weight: bold;margin-right:5px">
+                                            {if $paidVer.time=='0'}永久授权
+                                            {else/}
+                                            {$paidVer.time|date="Y-m-d",###}
+                                            {/if}
+                                        </span>
+                                    </span>
+                                    {/case}
+                                    {case value='ltd'}
+                                    <span class="isltd">到期时间：
+                                        <span style="color: #fc6d26;font-weight: bold;margin-right:5px">
+                                            {if $paidVer.time=='0'}永久授权
+                                            {else/}
+                                            {$paidVer.time|date="Y-m-d",###}
+                                            {/if}
+                                        </span>
+                                    </span>
+                                    {/case}
+                                    {default /}
+                                {/switch}
+                                <span>不间断运行：{$GetSystemTotal.time|default="--"}</span>
+                                <span>公网IP：{$IP}</span>
+                            </p>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="row">
+                                    <div class="col-sm-3 col-xs-6">
+                                        <div class="sm-st clearfix">
+                                            <span class="sm-st-icon st-red"><i class="fa fa-users"></i></span>
+                                            <div class="sm-st-info">
+                                                <span><a href="{:url('/user/user')}" class="btn-addtabs"
+                                                        title="{:__('Total user')}">
+                                                        {$totaluser|default="0"}</a></span>
+                                                {:__('Total user')}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <div class="sm-st clearfix">
+                                            <span class="sm-st-icon st-violet"><i class="fa fa-hdd-o"></i></span>
+                                            <div class="sm-st-info">
+                                                <span><a href="{:url('/host')}" class="btn-addtabs"
+                                                        title="{:__('Total web')}">{$hostCount|default="0"}</a></span>
+                                                {:__('Total web')}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <div class="sm-st clearfix">
+                                            <span class="sm-st-icon st-blue"><i class="fa fa-globe"></i></span>
+                                            <div class="sm-st-info">
+                                                <span><a href="{:url('/ftp')}" class="btn-addtabs"
+                                                        title="{:__('Total ftp')}">{$ftpCount|default="0"}</a></span>
+                                                {:__('Total ftp')}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <div class="sm-st clearfix">
+                                            <span class="sm-st-icon st-green"><i class="fa fa-database"></i></span>
+                                            <div class="sm-st-info">
+                                                <span><a href="{:url('/sql')}" class="btn-addtabs"
+                                                        title="{:__('Total sql')}">{$sqlCount|default="0"}</a></span>
+                                                {:__('Total sql')}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            
+                            <div class="text-center" id="btAction">
+                                <a class="btn btn-success btn-deployment btn-dialog {:$auth->check('general/deployment/upload')?'':'hide'}"
+                                    href="general/deployment/upload" title="{:__('新增一键部署包')}"><i
+                                        class="fa fa-upload"></i> {:__('新增一键部署包')}</a>
+                                <button class="btn btn-default" id="default" type="button">
+                                    修改默认页
+                                </button>
+                                <button class="btn btn-default" id="Recycle" type="button">
+                                    回收站清理
+                                </button>
+                                <!-- <button class="btn btn-default" id="CloseLogs" type="button">
+                                    日志删除
+                                </button> -->
+                                <button class="btn btn-default" id="update"  type="button">
+                                    更新面板
+                                </button>
+                                <button class="btn btn-default" id="re_panel" type="button">
+                                    修复面板
+                                </button>
+                                <button class="btn btn-default" id="reWeb"  type="button">
+                                    重启面板
+                                </button>
+                                <button class="btn btn-default" id="RestartServer" type="button">
+                                    重启服务器
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="serverNet">
+                        <ul class="serverNet-list">
+                            <li>
+                                <a href="javascript:;">
+                                    <h6 id="netUp">21.43kb</h6>
+                                    <span>
+                                        {:__('Net up')}
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:;">
+                                    <h6 id="netDown">2.04kb</h6>
+                                    <span>
+                                        {:__('Net down')}
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:;">
+                                    <h6 id="downTotal">4.74MB</h6>
+                                    <span>
+                                        总发送
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:;">
+                                    <h6 id="upTotal">42.22MB</h6>
+                                    <span>
+                                        总接收
+                                    </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="echart" class="btn-refresh" style="height:200px;width:100%;"></div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card sameheight-item stats">
+                        <div class="card-block">
+                            <div class="row row-sm stats-container tatolinfo">
+                                <div class="col-xs-3 stat-col">
+                                    <div class="stat-icon"><i class="fa fa-users"></i></div>
+                                    <div class="stat">
+                                        <div class="value"> <a href="{:url('/user/user')}" class="btn-addtabs"
+                                                title="{:__('Today user login')}"> {$todayusersignup}</a></div>
+                                        <div class="name"> {:__('Today user login')}</div>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-success" style="width: 30%"></div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-3 stat-col">
+                                    <div class="stat-icon"><i class="fa fa-globe"></i></div>
+                                    <div class="stat">
+                                        <div class="value"> <a href="{:url('/domainlist')}" class="btn-addtabs"
+                                                title="{:__('Total audit')}"> {$auditCount}</a>
+                                        </div>
+                                        <div class="name"> {:__('Total audit')}</div>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-warning" style="width: 30%"></div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-3 stat-col">
+                                    <div class="stat-icon"><i class="fa fa-hdd-o"></i></div>
+                                    <div class="stat">
+                                        <div class="value"><a href="{:url('/host')}" class="btn-addtabs"
+                                                title="{:__('Total endtime 7')}"> {$endtime7Count}</a></div>
+                                        <div class="name"> {:__('Total endtime 7')}</div>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-success" style="width: 30%"></div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-3 stat-col">
+                                    <div class="stat-icon"><i class="fa fa-hdd-o"></i></div>
+                                    <div class="stat">
+                                        <div class="value"> <a href="{:url('/host')}" class="btn-addtabs"
+                                                title="{:__('Total endtime')}"> {$endCount}</a></div>
+                                        <div class="name"> {:__('Total endtime')}</div>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-success" style="width: 30%"></div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-3 stat-col">
+                                    <div class="stat-icon"><i class="fa fa-hdd-o"></i></div>
+                                    <div class="stat">
+                                        <div class="value"> <a href="{:url('/host')}" class="btn-addtabs"
+                                                title="{:__('Excess host count')}"> {$ExcesshostCount}</a></div>
+                                        <div class="name"> {:__('Excess host count')}</div>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-success" style="width: 30%"></div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-3 stat-col">
+                                    <div class="stat-icon"><i class="fa fa-hdd-o"></i></div>
+                                    <div class="stat">
+                                        <div class="value"> <a href="{:url('/host')}" class="btn-addtabs"
+                                                title="{:__('Recyclebin count')}"> {$RecyclebinCount}</a></div>
+                                        <div class="name"> {:__('Recyclebin count')}</div>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-success" style="width: 30%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="box box-danger">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">{:__('公告')}</h3>
+                            <!-- <div class="box-tools pull-right">
+                                <a href="https://bbs.btye.net" target="_blank" class="text-info">更多内容 <i
+                                        class="fa fa-plus"></i> </a>
+                            </div> -->
+                        </div>
+                        <div class="box-body" id="notices">
+                            广而告之
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="box box-success">
+                        <div class="box-header">
+                            <h3 class="box-title">{:__('Initial detection')}</h3>
+                        </div>
+                        <div class="box-body" style="padding-top:0;">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <td>{:__('宝塔面板通讯连接')}</td>
+                                        {if $validate_btpanel}
+                                            <td class="text-success"><i class="fa fa-check"></i> {:__('通过')}</td>
+                                            {else /}
+                                            <td class="text-danger"><i class="fa fa-remove"></i> {:__('失败')}:{$validate_btpanel_error}</td>
+                                        {/if}
+                                    </tr>
+                                    <tr>
+                                        <td>{:__('服务器密钥配置')}<i class="fa fa-question-circle" data-toggle="tooltip" data-placement="top" title="{:__('重要配置')}"></i></td>
+                                        {if $validate_apitoken}
+                                        <td class="text-success"><i class="fa fa-check"></i> {:__('通过')}</td>
+                                        {else /}
+                                        <td class="text-danger"><i class="fa fa-remove"></i> {:__('未配置')}</td>
+                                        {/if}
+                                    </tr>
+                                    <tr>
+                                        <td>{:__('备案引导模块')}<i class="fa fa-question-circle" data-toggle="tooltip" data-placement="top" title="{:__('用于备案检测及域名访问拦截')}"></i></td>
+                                        {if $validate_beian}
+                                        <td class="text-success"><i class="fa fa-check"></i> {:__('通过')}</td>
+                                        {else /}
+                                        <td class="text-danger"><i class="fa fa-remove"></i> {:__('失败')}
+                                        <a class="btn-initssss" data-type='beian'>{:__('立即初始化')}</a>
+                                        </td>
+                                        {/if}
+                                    </tr>
+                                    <tr>
+                                        <td>{:__('FTP服务器配置')}</td>
+                                        {if $validate_ftpserver}
+                                        <td class="text-success"><i class="fa fa-check"></i> {:__('通过')}</td>
+                                        {else /}
+                                        <td class="text-danger"><i class="fa fa-remove"></i> {:__('未配置')}</td>
+                                        {/if}
+                                    </tr>
+                                    <tr>
+                                        <td>{:__('在线Sql管理地址配置')}</td>
+                                        {if $validate_phpmyadmin}
+                                        <td class="text-success"><i class="fa fa-check"></i> {:__('通过')}</td>
+                                        {else /}
+                                        <td class="text-danger"><i class="fa fa-remove"></i> {:__('未配置')}</td>
+                                        {/if}
+                                    </tr>
+                                    <tr>
+                                        <td>{:__('API通信密钥配置')}<i class="fa fa-question-circle" data-toggle="tooltip" data-placement="top" title="{:__('重要配置')}"></i></td>
+                                        {if $validate_apiaccess_token}
+                                        <td class="text-success"><i class="fa fa-check"></i> {:__('通过')}</td>
+                                        {else /}
+                                        <td class="text-danger"><i class="fa fa-remove"></i> {:__('未配置')}</td>
+                                        {/if}
+                                    </tr>
+                                    <tr>
+                                        <td>{:__('计划任务部署')}<i class="fa fa-question-circle" data-toggle="tooltip" data-placement="top" title="{:__('重要配置')}"></i></td>
+                                        {if $validate_queue}
+                                            <td class="text-success"><i class="fa fa-check"></i> {:__('通过')}</td>
+                                            {else /}
+                                            <td class="text-danger"><i class="fa fa-remove"></i> {:__('未部署')}</td>
+                                        {/if}
+                                    </tr>
+                                    <tr>
+                                        <td>{:__('计划任务密钥配置')}<i class="fa fa-question-circle" data-toggle="tooltip" data-placement="top" title="{:__('重要配置')}"></i></td>
+                                        {if $validate_queuekey}
+                                            <td class="text-success"><i class="fa fa-check"></i> {:__('通过')}</td>
+                                            {else /}
+                                            <td class="text-danger"><i class="fa fa-remove"></i> {:__('未配置')}</td>
+                                        {/if}
+                                    </tr>
+                                    <tr>
+                                        <td>{:__('btHost自动检查更新')}<i class="fa fa-question-circle" data-toggle="tooltip" data-placement="top" title="{:__('建议开启')}"></i></td>
+                                        {if $validate_auto_update}
+                                            <td class="text-success"><i class="fa fa-check"></i> {:__('通过')}</td>
+                                            {else /}
+                                            <td class="text-danger"><i class="fa fa-remove"></i> {:__('未开启')}</td>
+                                        {/if}
+                                    </tr>
+                                    <tr>
+                                        <td>{:__('自动获取公告')}<i class="fa fa-question-circle" data-toggle="tooltip" data-placement="top" title="{:__('建议开启')}"></i></td>
+                                        {if $validate_auto_notice}
+                                            <td class="text-success"><i class="fa fa-check"></i> {:__('通过')}</td>
+                                            {else /}
+                                            <td class="text-danger"><i class="fa fa-remove"></i> {:__('未开启')}</td>
+                                        {/if}
+                                    </tr>
+                                    <tr>
+                                        <td>{:__('宝塔面板自动更新')}<i class="fa fa-question-circle" data-toggle="tooltip" data-placement="top" title="{:__('自动检查并更新到最新版宝塔面板')}"></i></td>
+                                        {if $validate_auto_bt_update}
+                                            <td class="text-success"><i class="fa fa-check"></i> {:__('开启')}<a href="javascript:;" class="btn-initssss" data-type="bt_update_off"> 关闭</a></td>
+                                            {else /}
+                                            <td class="text-danger"><i class="fa fa-remove"></i> {:__('未开启')}<a href="javascript:;" class="btn-initssss" data-type="bt_update_on"> 开启</a></td>
+                                        {/if}
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="box box-info">
+                        <div class="box-header">
+                            <h3 class="box-title">{:__('Server info')}</h3>
+                        </div>
+                        <div class="box-body" style="padding-top:0;">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <td>{:__('系统版本')}</td>
+                                        <td>{$Think.config.bty.version|default=""} <a href="javascript:;"
+                                                class="btn btn-xs btn-checkversion">检查最新版</a> | <a
+                                                href="javascript:;" class="btn btn-xs btn-testing">节点检测</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td width="140">{:__('FastAdmin version')}</td>
+                                        <td>{$Think.config.fastadmin.version}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{:__('Thinkphp version')}</td>
+                                        <td>{:THINK_VERSION}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{:__('Logs file')}</td>
+                                        <td>{:formatBytes($logsSize)} <a href="javascript:;"
+                                                class="btn btn-xs btn-clearlogs">{:__('Wipe logs')}</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>{:__('Debug mode')}</td>
+                                        <td>{$Think.config.app_debug?__('Yes'):__('No')}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{:__('Software')}</td>
+                                        <td>{$Think.server.SERVER_SOFTWARE}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{:__('Timezone')}</td>
+                                        <td>{:date_default_timezone_get()}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{:__('Cdn url')}</td>
+                                        <td>__CDN__</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{:__('Language')}</td>
+                                        <td>{$config.language}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            <div class="tab-pane fade" id="two">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="col-lg-12">
+                            <div class="box box-warning">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">面板操作日志</h3>
+                                </div>
+                                <div class="box-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-condensed table-striped table-hover table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>用户</th>
+                                                    <th>类型</th>
+                                                    <th>详情</th>
+                                                    <th>操作时间</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {volist name="logsList" id="log"}
+                                                <tr>
+                                                    <td>{$log.username}</td>
+                                                    <td>{$log.type}</td>
+                                                    <td>{$log.log}</td>
+                                                    <td>{$log.addtime}</td>
+                                                </tr>
+                                                {/volist}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--@formatter:off-->
+<script>
+    var Orderdata = {
+        column: {:json_encode(array_keys($paylist))},
+        paydata: {:json_encode(array_values($paylist))},
+        createdata: {:json_encode(array_values($createlist))},
+    };
+</script>
+<!--@formatter:on-->

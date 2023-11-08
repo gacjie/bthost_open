@@ -1,0 +1,296 @@
+{extend name="common/base" /}
+{block name="content"}
+<div class="row">
+	<div class="col-md-12">
+		<div class="card" id="loading_box">
+			<div class="card-header">
+				<header class="card-title">
+					{:__('Backup')}
+				</header>
+			</div>
+			<div class="card-body">
+				<a href="javascript:webBackInc()" class="btn btn-warning btn-w-lg">{:__('Web backup')}</a>
+				<p>
+					<small id="passwordHelpInline" class="text-muted">
+						{:__('Remaining manual backup num')}：{if $hostInfo.web_back_num!=0}{$hostInfo.web_back_num-$countback_site}{if ($hostInfo.web_back_num -
+						$countback_site) < 1}，{:__('Please delete the original backup before backup')}{/if}{else/}{:__('Unlimited')}{/if}
+					</small>
+				</p>
+				{if $has_sql}
+				<a href="javascript:sqlBackInc()" class="btn btn-warning btn-w-lg">{:__('Sql backup')}</a>
+                <p>
+                    <small id="passwordHelpInline" class="text-muted">
+                        {:__('Remaining manual backup num')}：{if $hostInfo.sql_back_num!=0}{$hostInfo.sql_back_num-$countback_sql}{if
+                        ($hostInfo.sql_back_num - $countback_sql) < 1}，{:__('Please delete the original backup before backup')}{/if}{else/}{:__('Unlimited')}{/if}
+					</small>
+				</p>
+				{/if}
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+		<div class="card" id="loading_list">
+			<div class="card-header">
+				<header class="card-title">
+					{:__('Backup list')}
+				</header>
+			</div>
+			<div class="card-body">
+				<div class="table-responsive">
+					<form action="" method="post">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>{:__('File name')}</th>
+									<th>{:__('File size')}</th>
+									<th>{:__('Backup time')}</th>
+									<th>{:__('Operation')}</th>
+								</tr>
+							</thead>
+							<tbody>
+								{volist name="WebBackupList.data" id="web"}
+								<tr>
+									<td>{$web.name} <span
+											class="badge badge-info">{:__('Web backup')}</span></td>
+									<td>{$web.size}</td>
+									<td>{$web.addtime}</td>
+									<td>
+										<a href="{:url('index/vhost/back')}?down_back_file={$web.name}"
+											target="_blank" class="btn btn-label btn-info btn-xs"><label><i class="mdi mdi-arrow-down-bold-hexagon-outline"></i></label> {:__('Download')}</a>
+											<a class="btn btn-label btn-danger btn-xs" onclick="webBackDel('{$web.id}')"><label><i class="mdi mdi-close"></i></label> {:__('Delete')}</a>
+									</td>
+								</tr>
+								{/volist}
+								{if $has_sql}
+								{volist name="SqlBackupList.data" id="sql"}
+								<tr>
+									<td>{$sql.name} <span
+											class="badge badge-purple">{:__('Sql backup')}</span></td>
+									<td>{$sql.size}</td>
+									<td>{$sql.addtime}</td>
+									<td>
+										<a href="{:url('index/vhost/sqlBackDown')}?down_back_sql={$sql.name}"
+                                            target="_blank" class="btn btn-label btn-info btn-xs">
+                                            <label><i class="mdi mdi-arrow-down-bold-hexagon-outline"></i></label> {:__('Download')}
+                                        </a>
+                                        <a class="btn btn-label btn-warning btn-xs" onclick="sqlInputSql('{$sql.name}')">
+                                            <label><i class="mdi mdi-close"></i></label> {:__('Restore')}
+                                        </a>
+                                        <a class="btn btn-label btn-danger btn-xs" onclick="sqlBackDel('{$sql.id}')">
+                                            <label><i class="mdi mdi-close"></i></label> {:__('Delete')}
+                                        </a>
+									</td>
+								</tr>
+								{/volist}
+								{/if}
+							</tbody>
+						</table>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+	function webBackInc() {
+		$.confirm({
+			title: '{:__("Reminder")}',
+			content: '{:__("The backup time depends on the size of the %s",__("Site Size"))}',
+			icon: 'mdi mdi-alert',
+			animation: 'scale',
+			closeAnimation: 'zoom',
+			buttons: {
+				confirm: {
+					text: '{:__("Backup")}',
+					btnClass: 'btn-orange',
+					action: function () {
+						var l = $('#loading_box').lyearloading({
+							opacity: 0.125,
+							spinnerSize: 'lg'
+						});
+						$.post('{:url("index/vhost/webBackInc")}', {
+							to: 'back'
+						}, function (res) {
+							EchoMsg(res.msg, 1);
+						})
+						.fail(function () {
+							EchoMsg('{:__("Request error, please try again later")}');
+						})
+						.always(function () {
+							l.destroy();
+						})
+					}
+				},
+				'{:__("Cancel")}': function () {
+
+				}
+			}
+		});
+	}
+
+	function webBackDel(id) {
+		$.confirm({
+			title: '{:__("Reminder")}',
+			content: '{:__("Confirm delete?")}',
+			icon: 'mdi mdi-alert',
+			animation: 'scale',
+			closeAnimation: 'zoom',
+			buttons: {
+				confirm: {
+					text: '{:__("Confirm")}',
+					btnClass: 'btn-orange',
+					action: function () {
+						var l = $('#loading_list').lyearloading({
+							opacity: 0.125,
+							spinnerSize: 'lg'
+						});
+						$.post('{:url("index/vhost/webBackDel")}', {
+							del: id
+						}, function (res) {
+							EchoMsg(res.msg, 1);
+						})
+						.fail(function () {
+							EchoMsg('{:__("Request error, please try again later")}');
+						})
+						.always(function () {
+							l.destroy();
+						})
+					}
+				},
+				'{:__("Cancel")}': function () {
+
+				}
+			}
+		});
+	}
+
+	function webBackDown(id) {
+		$.post('{:url("index/vhost/webBackDown")}', {
+			down: id
+		}, function (res) {
+			EchoMsg(res.msg, 1);
+		})
+		.fail(function () {
+			EchoMsg('{:__("Request error, please try again later")}');
+		})
+	}
+
+	function sqlBackInc() {
+        $.confirm({
+            title: '{:__("Reminder")}',
+            content: '{:__("The backup time depends on the size of the %s",__("Sql"))}',
+            icon: 'mdi mdi-alert',
+            animation: 'scale',
+            closeAnimation: 'zoom',
+            buttons: {
+                confirm: {
+                    text: '备份',
+                    btnClass: 'btn-orange',
+                    action: function () {
+                        var l = $('#loading_box').lyearloading({
+                            opacity: 0.125,
+                            spinnerSize: 'lg'
+                        });
+                        $.post('{:url("index/vhost/sqlBackInc")}', {
+                            to: 'back'
+                        }, function (res) {
+                            EchoMsg(res.msg, 1);
+                        })
+                        .fail(function () {
+                            EchoMsg('{:__("Request error, please try again later")}');
+                        })
+                        .always(function () {
+                            l.destroy();
+                        })
+                    }
+                },
+                '{:__("Cancel")}': function () {
+
+                }
+            }
+        });
+    }
+
+    function sqlBackDel(id) {
+        $.confirm({
+            title: '{:__("Reminder")}',
+            content: '{:__("Confirm delete?")}',
+            icon: 'mdi mdi-alert',
+            animation: 'scale',
+            closeAnimation: 'zoom',
+            buttons: {
+                confirm: {
+                    text: '{:__("Confirm")}',
+                    btnClass: 'btn-orange',
+                    action: function () {
+                        var l = $('#loading_list').lyearloading({
+                            opacity: 0.125,
+                            spinnerSize: 'lg'
+                        });
+                        $.post('{:url("index/vhost/sqlBackDel")}', {
+                            del: id
+                        }, function (res) {
+                            EchoMsg(res.msg, 1);
+                        })
+                        .fail(function () {
+                            EchoMsg('{:__("Request error, please try again later")}');
+                        })
+                        .always(function () {
+                            l.destroy();
+                        })
+                    }
+                },
+                '{:__("Cancel")}': function () {
+
+                }
+            }
+        });
+    }
+
+	function sqlBackDown(id){
+		$.post('{:url("index/vhost/sqlBackDown")}',{down:id},function(res){
+			EchoMsg(res.msg,1);
+		})
+        .fail(function () {
+            EchoMsg('{:__("Request error, please try again later")}');
+        })
+	}
+	function sqlInputSql(file){
+        $.confirm({
+            title: '{:__("Reminder")}',
+            content: '{:__("The original data will be overwritten and not recoverable. Continue?")}',
+            icon: 'mdi mdi-alert',
+            animation: 'scale',
+            closeAnimation: 'zoom',
+            buttons: {
+                confirm: {
+                    text: '{:__("Confirm")}',
+                    btnClass: 'btn-orange',
+                    action: function () {
+                        var l = $('#loading_list').lyearloading({
+                            opacity: 0.125,
+                            spinnerSize: 'lg'
+                        });
+                        $.post('{:url("index/vhost/sqlInputSql")}',{file:file},function(res){
+                            EchoMsg(res.msg,1);
+                        })
+                        .fail(function () {
+                            EchoMsg('{:__("Request error, please try again later")}');
+                        })
+                        .always(function () {
+                            l.destroy();
+                        })
+                    }
+                },
+                '{:__("Cancel")}': function () {
+
+                }
+            }
+        });
+	}
+</script>
+{/block}

@@ -1,0 +1,79 @@
+<form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('英文名')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-name" class="form-control" name="row[name]" type="text" data-rule="required">
+            <small class="text-danger">格式: [0-9A-Za-z_-]+，不要带有空格和特殊字符</small>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('中文名')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-title" class="form-control" name="row[title]" type="text" data-rule="required">
+            <small class="text-danger">用于显示到列表的名称</small>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="php" class="control-label col-xs-12 col-sm-2">{:__('PHP版本')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-php" class="form-control" name="row[php]" type="text" placeholder="如：53,54,55,56,70,71,72"
+                data-rule="required">
+            <small>多个请使用","(逗号)隔开，不要使用PHP5.2</small>
+            <!-- <input id="c-php" data-rule="required" data-source="ajax/phplist" class="form-control selectpage"
+                name="row[php]" type="text" value="" data-multiple="true"> -->
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('解禁的函数')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-enable_functions" class="form-control" name="row[enable_functions]" type="text"
+                placeholder="如：system,exec" >
+            <small class="text-danger">多个请使用","(逗号)隔开，只解禁必要函数</small>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('项目版本')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-version" class="form-control" name="row[version]" type="text" placeholder="如：5.2.1"
+                data-rule="required">
+            <small class="text-danger">当前导入的项目版本</small>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('简介')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <textarea id="c-ps" class="form-control editor" rows="5" name="row[ps]" cols="50"
+                data-rule="required"></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="c-dep_zip" class="control-label col-xs-12 col-sm-2">安装包:</label>
+        <div class="col-xs-12 col-sm-8">
+            <div class="input-group">
+                <input id="c-dep_zip" data-rule="" class="form-control" size="50" name="row[dep_zip]" type="text"
+                    value="" data-rule="required" placeholder="请上传zip格式的项目包,里面必需包含auto_insatll.json配置文件">
+                <div class="input-group-addon no-border no-padding">
+                    <span><button type="button" id="plupload-dep_zip" class="btn btn-danger plupload"
+                            data-input-id="c-dep_zip" data-mimetype="application/zip"
+                            data-multiple="false" data-preview-id="p-dep_zip"><i class="fa fa-upload"></i>
+                            上传</button></span>
+                    <span><button type="button" id="fachoose-dep_zip" class="btn btn-primary fachoose"
+                            data-input-id="c-dep_zip" data-mimetype="zip/*" data-multiple="false"><i
+                                class="fa fa-list"></i> 选择</button></span>
+                </div>
+                <span class="msg-box n-right" for="c-dep_zip"></span>
+            </div>
+            <small>请查看《<a href="https://www.bt.cn/bbs/thread-33063-1-1.html"
+                    target="_blank">【宝塔一键部署】项目包构建文档</a>》构建一键部署包，也可以联系<a href="http://wpa.qq.com/msgrd?v=3&uin=1170535111&site=qq&menu=yes" target="_blank">小杰</a>提供付费打包服务</small>
+            <ul class="row list-inline plupload-preview" id="p-dep_zip"></ul>
+        </div>
+    </div>
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>

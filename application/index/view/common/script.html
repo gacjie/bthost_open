@@ -1,0 +1,47 @@
+<!-- <script src="__CDN__/assets/js/require{$Think.config.app_debug?'':'.min'}.js?v={$static_version}" data-main="__CDN__/assets/js/require-frontend{$Think.config.app_debug?'':'.min'}.js?v={$static_version}"></script> -->
+
+<script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/jquery.min.js?v={$static_version}"></script>
+<script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/popper.min.js?v={$static_version}"></script>
+<script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/bootstrap.min.js?v={$static_version}"></script>
+<script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/perfect-scrollbar.min.js?v={$static_version}"></script>
+<script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/bootstrap-multitabs/multitabs.min.js?v={$static_version}"></script>
+<script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/jquery.cookie.min.js?v={$static_version}"></script>
+<script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/index.min.js?v={$static_version}"></script>
+<script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/jquery-confirm/jquery-confirm.min.js?v={$static_version}"></script>
+<script src="__CDN____STATIC__/Light-Year/js/script.js?v={$static_version}"></script>
+<script>
+    // 选项卡
+    $('#iframe-content').multitabs({
+        iframe : true,
+        cache : Config.site.iframe_cache=='true'?true:false, // tab标签缓存，ture=缓存,false=不缓存
+        refresh : 'no', // iframe中页面是否刷新，'no'：'从不刷新'，'nav'：'点击菜单刷新'，'all'：'菜单和tab点击都刷新'
+        nav: {
+            backgroundColor: '#ffffff',
+            maxTabs : 35, // 选项卡最大值
+        },
+        init : [{
+            type : 'main',
+            title : '{:__("Console center")}',
+            url : 'main'
+        }]
+    });
+    $('.btn_clear_cache').click(function(){
+        $.ajax({
+            type: "get",
+            url: "{:url('index/vhost/clear_cache')}",
+            dataType: "json",
+            success: function (response) {
+                EchoMsg(response.msg);
+            }
+        });
+    });
+    $('.language').click(function(){
+        if($(this).data('lang')=='en'){
+            window.location.href="?lang=zh-cn";
+        }else{
+            window.location.href="?lang=en";
+        }
+        
+    });
+</script>
+<script type="text/javascript">;</script>

@@ -1,0 +1,152 @@
+<form id="edit-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('User_id')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-user_id" data-rule="required" data-source="user/user/index" data-field="nickname" class="form-control selectpage" name="row[user_id]" type="text" value="{$row.user_id|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('站点分类')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input type="text" name="row[sort_id]" data-source="ajax/sortlist" data-field="name" data-rule="required"
+                class="form-control selectpage" id="c-sort_id" placeholder="" value="{$row.sort_id|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Bt_name')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-bt_name" data-rule="required" class="form-control" name="row[bt_name]" type="text" value="{$row.bt_name|htmlentities}" disabled>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Site_size')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-site_size" data-rule="required" class="form-control" name="row[site_size]" type="number" value="{$row.site_size|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Flow_size')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-flow_size" data-rule="required" class="form-control" name="row[flow_size]" type="number" value="{$row.flow_size|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Sql_size')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-sql_size" data-rule="required" class="form-control" name="row[sql_size]" type="number" value="{$row.sql_size|htmlentities}">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Site_max')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-site_max" data-rule="required" class="form-control" name="row[site_max]" type="number" value="{$row.site_max|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Flow_max')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-flow_max" data-rule="required" class="form-control" name="row[flow_max]" type="number" value="{$row.flow_max|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Sql_max')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-sql_max" data-rule="required" class="form-control" name="row[sql_max]" type="number" value="{$row.sql_max|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Perserver')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-perserver" data-rule="" class="form-control" name="row[perserver]" type="number"
+                value="{$row.perserver|default=''|htmlentities}">
+                <small class="text-danger">0:不限制，该功能仅限Nginx环境使用</small>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Limit_rate')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-limit_rate" data-rule="" class="form-control" name="row[limit_rate]" type="number"
+                value="{$row.limit_rate|default=''|htmlentities}">
+                <small class="text-danger">0:不限制，该功能仅限Nginx环境使用,（单位：KB）</small>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Ip_address')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-ip_address" data-source="ipaddress/index" data-primary-key="id" data-field="ip" class="form-control selectpage" data-multiple="true" name="row[ip_address]" type="text" value="{$row.ip_address|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Web_back_num')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-web_back_num" data-rule="required" class="form-control" name="row[web_back_num]" type="number" value="{$row.web_back_num|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Sql_back_num')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-sql_back_num" data-rule="required" class="form-control" name="row[sql_back_num]" type="number" value="{$row.sql_back_num|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Domain_max')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-domain_max" data-rule="required" class="form-control" name="row[domain_max]" type="number" value="{$row.domain_max|htmlentities}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Is_audit')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            {:build_radios('row[is_audit]', ['1'=>__('需要审核'), '0'=>__('无需审核')],$row.is_audit)}
+            <small class="text-danger">个别机房域名绑定审核，或白名单要求</small>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Sub bind')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            {:build_radios('row[sub_bind]', ['1'=>__('启用'), '0'=>__('禁用')],$row.sub_bind)}
+            <small class="text-danger">高危功能，请谨慎开启</small>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Is_vsftpd')}:</label>
+        <div class="col-xs-12 col-sm-8">
+
+            <select  id="c-is_vsftpd" data-rule="required" class="form-control selectpicker" name="row[is_vsftpd]" disabled>
+                {foreach name="isVsftpdList" item="vo"}
+                    <option value="{$key}" {in name="key" value="$row.is_vsftpd"}selected{/in}>{$vo}</option>
+                {/foreach}
+            </select>
+
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Endtime')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input id="c-endtime" data-rule="required" class="form-control datetimepicker" data-date-format="YYYY-MM-DD" data-use-current="true" name="row[endtime]" type="text" value="{:$row.endtime?datetime($row.endtime):''}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('Status')}:</label>
+        <div class="col-xs-12 col-sm-8">
+
+            <div class="radio">
+            {foreach name="statusList" item="vo"}
+            <label for="row[status]-{$key}"><input id="row[status]-{$key}" name="row[status]" type="radio" value="{$key}" {in name="key" value="$row.status"}checked{/in} /> {$vo}</label>
+            {/foreach}
+            </div>
+
+        </div>
+    </div>
+    <div class="form-group layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>

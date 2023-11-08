@@ -1,0 +1,159 @@
+{extend name="common/base" /}
+{block name="content"}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card" id="loading_box">
+            <div class="card-header">
+                <header class="card-title">
+                    {:__('%s pass setting',__('Host'))}
+                </header>
+            </div>
+            <div class="card-body">
+                <form action="" method="post" id="panel">
+                    <div class="form-group">
+                        <label for="">{:__('Username')}：</label>
+                        <input name="username" class="span3 form-control" value="{$userInfo.username}" disabled="">
+                    </div>
+                    <div class="form-group">
+                        <label for="">{:__('Old password')}：</label>
+                        <input name="oldpass" class="span3 form-control" value="" type="password">
+                    </div>
+                    <div class="form-group">
+                        <label for="">{:__('New password')}：</label>
+                        <input name="password" class="span3 form-control" value="" type="password">
+                    </div>
+                    <div class="form-group">
+                        <input type="button" value="{:__('Change')}" class="btn btn-warning" onclick="newPass()">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {notempty name="hostInfo.ftp.username"}
+    <div class="col-md-12">
+        <div class="card" id="loading_box1">
+            <div class="card-header">
+                <header class="card-title">
+                    {:__('%s pass setting',__('Ftp'))}
+                </header>
+            </div>
+            <div class="card-body">
+                <form action="" method="post" id="ftp">
+                    <div class="form-group">
+                        <label for="">{:__('Username')}：</label>
+                        <input name="username" class="span3 form-control" value="{$hostInfo.ftp.username}" disabled="">
+                    </div>
+                    <div class="form-group">
+                        <label for="">{:__('Password')}：</label>
+                        <input name="password" class="span3 form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <input type="button" value="{:__('Change')}" class="btn btn-warning" onclick="ftpUp()">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {/notempty}
+    {notempty name="hostInfo.sql.username"}
+    <div class="col-md-12">
+        <div class="card" id="loading_box2">
+            <div class="card-header">
+                <header class="card-title">
+                    {:__('%s pass setting',__('Sql'))}
+                </header>
+            </div>
+            <div class="card-body">
+                <form action="" method="post" id="sql">
+                    <div class="form-group">
+                        <label for="">{:__('Username')}：</label>
+                        <input name="username" class="span3 form-control" value="{$hostInfo.sql.username}" disabled="">
+                    </div>
+                    <div class="form-group">
+                        <label for="">{:__('Password')}：</label>
+                        <input name="password" class="span3 form-control" value="">
+                    </div>
+                    <div class="form-group">
+                        <input type="button" value="{:__('Change')}" class="btn btn-warning" onclick="sqlUp()">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {/notempty}
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+    function newPass() {
+        oldpass = $('#panel input[name="oldpass"]').val();
+        password = $('#panel input[name="password"]').val();
+        if (!password) {
+            EchoMsg('{:__("Can not be empty")}');
+            return false;
+        }
+        var l = $('#loading_box').lyearloading({
+            opacity: 0.125,
+            spinnerSize: 'lg'
+        });
+        $.post('{:url("index/vhost/passVhost")}', {
+                password: password,
+                oldpass: oldpass
+            }, function (res) {
+                EchoMsg(res.msg, 1);
+            })
+            .fail(function () {
+                EchoMsg('{:__("Request error, please try again later")}');
+            })
+            .always(function () {
+                l.destroy();
+            })
+    }
+
+    function ftpUp() {
+        password = $('#ftp input[name="password"]').val();
+        if (!password) {
+            EchoMsg('{:__("%s can not be empty",__("Password"))}');
+            return false;
+        }
+        var l = $('#loading_box1').lyearloading({
+            opacity: 0.125,
+            spinnerSize: 'lg'
+        });
+        $.post('{:url("index/vhost/passFtp")}', {
+                password: password
+            }, function (res) {
+                EchoMsg(res.msg, 1);
+            })
+            .fail(function () {
+                EchoMsg('{:__("Request error, please try again later")}');
+            })
+            .always(function () {
+                l.destroy();
+            })
+    }
+
+    function sqlUp() {
+        password = $('#sql input[name="password"]').val();
+        if (!password) {
+            EchoMsg('{:__("%s can not be empty",__("Password"))}');
+            return false;
+        }
+        var l = $('#loading_box2').lyearloading({
+            opacity: 0.125,
+            spinnerSize: 'lg'
+        });
+        $.post('{:url("index/vhost/passSql")}', {
+                password: password
+            }, function (res) {
+                EchoMsg(res.msg, 1);
+            })
+            .fail(function () {
+                EchoMsg('{:__("Request error, please try again later")}');
+            })
+            .always(function () {
+                l.destroy();
+            })
+    }
+</script>
+{/block}

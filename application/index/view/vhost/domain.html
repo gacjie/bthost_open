@@ -1,0 +1,189 @@
+{extend name="common/base" /}
+{block name="content"}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <header class="card-title">
+                    {:__('Domain bind')}
+                </header>
+            </div>
+            <div class="card-body" id="loading_add">
+                <form action="" method="post">
+                    <div class="form-group">
+                        <textarea id="domain" name="domain" rows="5" class="form-control"
+                            placeholder="{:__('Fill in a domain name per line.&#10;Pan-resolution adding method: *.domain.com&#10;')}"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="dirs">{:__('Dir')}：</label>
+                        <select name="dirs" id="dirs" class="form-control">
+                            <option value="/">/</option>
+                            {if $sub_bind}
+                            {volist name="$dirList.dirs" id="dirs"}
+                            <option value="{$dirs}">{$dirs}</option>
+                            {/volist}
+                            {/if}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="button" value="{:__('Submit')}" class="btn btn-warning" onclick="incDomain()">
+                    </div>
+                    <small class="text-muted">
+                        <span style="color:red">！</span> {:__('Resolve address')}：{if
+                        $Think.config.site.default_analysis==0}{$hostInfo.bt_name}{else/}{$Think.config.site.dnspod_analysis_url}{/if}
+                        <br>
+                        <span class="text-danger">！</span> {:__('Bindable domain name')}：{$hostInfo.domain_max==0?__('Unlimited'):$sys}
+                        <hr>
+                        {$Think.config.site.analysis_desc}
+                    </small>
+                </form>
+            </div> 
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <header class="card-title">
+                    {:__('Domain list')}
+                </header>
+            </div>
+            <div class="card-body" id="loading_list">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <td>{:__('Domain')}</td>
+                                <td>{:__('Status')}</td>
+                                <td>{:__('Dir')}</td>
+                                <td>{:__('Operation')}</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {volist name="domainList" id="domain"}
+                            <tr id="domain_{$domain.name}">
+                                <td><a href="http://{$domain.name}" target="_blank">{$domain.name}</a></td>
+                                <td>{:__('normal')}</td>
+                                <td>/</td>
+                                <td><a href="javascript:delDomain('{$domain.name}','domain')">{:__('Delete')}</a></td>
+                            </tr>
+                            {/volist}
+                            {volist name="dirList.binding" id="domain"}
+                            <tr id="domain_{$domain.id}">
+                                <td><a href="http://{$domain.domain}" target="_blank">{$domain.domain}</a></td>
+                                <td>{:__('normal')}</td>
+                                <td>{$domain.path}</td>
+                                <td><a href="javascript:delDomain('{$domain.domain}','dir','{$domain.id}')">{:__('Delete')}</a>
+                                </td>
+                            </tr>
+                            {/volist}
+                            {volist name="auditList" id="audit"}
+                            <tr id="domain_{$audit.domain}">
+                                <td><a href="http://{$audit.domain}" target="_blank">{$audit.domain}</a></td>
+                                <td class="text-warning">{if $audit.status=='2'}{:__('Rejected')}{else /}{:__('Pending')}{/if}</td>
+                                <td>{$audit.dir}</td>
+                                <td><a href="javascript:delDomain('{$audit.domain}','domain')">{:__('Delete')}</a></td>
+                            </tr>
+                            {/volist}
+                            {volist name="not_beianList" id="beian"}
+                            <tr id="domain_{$beian.domain}">
+                                <td><a href="http://{$beian.domain}" target="_blank">{$beian.domain}</a></td>
+                                <td class="text-danger">{:__('Not be beian')}</td>
+                                <td>{$beian.dir}</td>
+                                <td><a href="javascript:delDomain('{$beian.domain}','domain','',1)">{:__('Delete')}</a></td>
+                            </tr>
+                            {/volist}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+    function incDomain() {
+        domain = $('#domain').val();
+        dirs = $('#dirs option:selected').val();
+        if (!domain || !dirs) {
+            EchoMsg('{:__("%s can not be empty",__("Domain"))}');
+            return false;
+        }
+        var l = $('#loading_add').lyearloading({
+            opacity: 0.125,
+            spinnerSize: 'lg'
+        });
+        $.post('{:url("index/vhost/incDomain")}', {
+                domain: domain,
+                dirs: dirs
+            }, function (res) {
+                if (res.code == 1) {
+                    EchoMsg(res.msg, 1, '{:url("index/vhost/domain")}');
+                } else {
+                    EchoMsg('error:' + res.msg);
+                }
+            })
+            .fail(function () {
+                EchoMsg('{:__("Request error, please try again later")}');
+            })
+            .always(function () {
+                l.destroy();
+            })
+    }
+
+    function delDomain(domain, type, id = '',not_beian = '') {
+        if (!domain || !type) {
+            EchoMsg('{:__("Unexpected situation")}');
+            return false;
+        }
+        $.confirm({
+            title: '{:__("Reminder")}',
+            content: '{:__("Confirm delete?")}',
+            icon: 'mdi mdi-alert',
+            animation: 'scale',
+            closeAnimation: 'zoom',
+            buttons: {
+                confirm: {
+                    text: '{:__("Confirm")}',
+                    btnClass: 'btn-orange',
+                    action: function () {
+                        var l = $('#loading_list').lyearloading({
+                            opacity: 0.125,
+                            spinnerSize: 'lg'
+                        });
+                        $.post('{:url("index/vhost/delDomain")}', {
+                                delete: domain,
+                                type: type,
+                                id: id,
+                                not_beian:not_beian
+                            }, function (res) {
+                                if (res.code == 1) {
+                                    EchoMsg(res.msg, 1, '{:url("index/vhost/domain")}');
+                                } else {
+                                    EchoMsg('error:' + res.msg);
+                                }
+                            })
+                            .fail(function () {
+                                EchoMsg('{:__("Request error, please try again later")}');
+                            })
+                            .always(function () {
+                                l.destroy();
+                            })
+                    }
+                },
+                '{:__("Cancel")}': function () {}
+            }
+        });
+    }
+    $(function(){
+        $('#domain').blur(function(){
+            var content = $(this).val();
+            var AllReplace = new RegExp("https|http|ftp|。|：| |/","g");
+            content=content.replace(AllReplace,"");
+            $(this).val(content);
+        });
+    });
+</script>
+{/block}

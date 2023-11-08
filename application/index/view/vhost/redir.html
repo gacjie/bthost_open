@@ -1,0 +1,266 @@
+{extend name="common/base" /}
+{block name="content"}
+<div class="row">
+	<div class="col-md-12">
+		<div class="card" id="load_box">
+			<div class="card-header">
+				<header class="card-title">
+					{:__('Redir list')}
+				</header>
+			</div>
+			<div class="card-body">
+				<form action="" method="post">
+					<table id="proxy_list" class="table table-hover">
+						<thead>
+							<tr>
+								<th>{:__('Redirect type')}</th>
+								<th>{:__('Redirect mode')}</th>
+								<th>{:__('Reserved URI parameter')}</th>
+
+								<th>{:__('Status')}</th>
+								<th>{:__('Redirect address')}</th>
+								<th style="text-align:right;">{:__('Operation')}</th>
+							</tr>
+						</thead>
+						<tbody>
+							{volist name="RedirectList" id="list"}
+							<tr>
+								<td style="display: none;" id="path_{$list.redirectname}">{$list.domainorpath}</td>
+								<td><span style="width:100px;" id="ptype_{$list.redirectname}"
+										title="{$list.redirectdomain?$list.redirectdomain:$list.redirectpath}">{$list.redirectdomain?$list.redirectdomain:$list.redirectpath}</span>
+								</td>
+								<td id="type_{$list.redirectname}">{$list.redirecttype}</td>
+								<td data-index="0">
+									<a href="javascript:;" class="btlink set_path_state" style=""
+										data-stuats="0">
+										<span style="color:#20a53a;" class="set_path_state" id="set_path_state_{$list.redirectname}">
+										{if $list.holdpath }
+											{:__('Open')}
+											{else /}
+											{:__('Close')}
+										{/if}
+										</span>
+									</a>
+								</td>
+								<td data-index="0">
+									<a href="javascript:;" class="btlink set_type_state" style=""
+										data-stuats="1">
+										<span style="color:red;"
+											id="set_type_state_{$list.redirectname}">
+											{if $list.type }
+												{:__('Running')}
+												{else /}
+												{:__('Pause')}
+											{/if}
+										</span>
+										<span style="color:red" class="glyphicon glyphicon-pause"></span>
+									</a>
+								</td>
+								<td id="tourl_{$list.redirectname}">{$list.tourl}</td>
+								<td style="text-align:right" data-index="0">
+									<a class="btlink edit_redirect"
+										href="javascript:sublime('{$list.redirectname}');">{:__('Edit')}</a> |
+									<a class="btlink" href="javascript:del('{$list.redirectname}');">{:__('Delete')}</a>
+								</td>
+							</tr>
+							{/volist}
+						</tbody>
+					</table>
+				</form>
+
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-lg-12">
+		<div class="card" id="load_set">
+			<div class="card-header">
+				<header class="card-title">
+					{:__('Redir add')}
+				</header>
+			</div>
+			<div class="card-body">
+				<section class="panel" id="RedirectList">
+
+					<div class="panel-body">
+						<input type="hidden" class="form-control" name="redirectname" id="redirectname">
+						<div class="custom-control custom-checkbox custom-control-inline">
+
+							<input type="checkbox" name="type" id="type" checked="" class="custom-control-input">
+							<label class="custom-control-label" for="type">{:__('Open')}</label>
+						</div>
+						<div class="custom-control custom-checkbox custom-control-inline">
+							<input type="checkbox" id="holdpath" name="holdpath" checked=""
+								class="custom-control-input">
+							<label class="custom-control-label" for="holdpath">{:__('Reserved URI parameter')}</label>
+						</div>
+						<div class="form-group">
+							<label for="status">{:__('Redirect content')}</label>
+							<select class="form-control" id="domainortype" name="domainortype" placeholder="{:__('Use commas to separate')}">
+								<option value="domain" calss="domain">{:__('Domain')}</option>
+								<option value="path" class="path">{:__('Path')}</option>
+							</select>
+						</div>
+						<div class="form-group" id="dom">
+							<label for="status">{:__('Redirect domain')}</label>
+							<select name="redirectdomain" id="redirectdomain" class="form-control">
+								{volist name="WebsitesList" id="webdomain"}
+								<option id="{$webdomain.name}">{$webdomain.name}</option>
+								{/volist}
+							</select>
+						</div>
+						<div class="form-group" id="lj" style="display: none;">
+							<label for="status">{:__('Redirect path')}</label>
+							<input name="redirectpath" id="redirectpath" class="bt-input-text mr5 form-control"
+								type="text" value="">
+						</div>
+						<div class="form-group">
+							<label for="status">{:__('Redirect mode')}</label>
+							<select class="form-control" id="redirecttype" name="redirecttype">
+								<option value="301">301</option>
+								<option value="302">302</option>
+							</select>
+						</div>
+
+
+						<div class="form-group">
+							<label for="status">{:__('Target Url')}</label>
+							<input name="tourl1" id="tourl1" class="bt-input-text mr5 form-control" type="text"
+								value="">
+						</div>
+						<div class="form-group">
+							<input type="button" value="{:__('Submit')}" onclick="Redirectsub()" class="btn btn-success">
+						</div>
+					</div>
+				</section>
+				<hr>
+
+				<small class="text-muted">
+					<li>{:__('Redirection type: indicates that when accessing the selected "domain name" or input "path", it will be redirected to the specified URL')}</li>
+					<li>{:__('Target URL: You can fill in the site you need to redirect to, the target URL must be a URL that can be accessed normally, otherwise an error will be returned')}</li>
+					<li>{:__('Redirection method: use 301 for permanent redirection and 302 for temporary redirection')}</li>
+					<li>{:__('Keep URI parameters: indicates whether the URL to be accessed after redirection has sub-paths or parameters, such as setting access to http://b.com to redirect to http://a.com')}</li>
+					<li>{:__('Keep URI parameters: http://b.com/1.html ---> http://a.com/1.html')}</li>
+					<li>{:__('Do not keep URI parameters: http://b.com/1.html ---> http://a.com')}</li>
+				</small>
+			</div>
+		</div>
+	</div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+	function del(str) {
+		var l = $('#load_box').lyearloading({
+			opacity: 0.125,
+			spinnerSize: 'lg'
+		});
+		$.post('{:url("index/vhost/redirDel")}', {
+			redirectname: str
+		}, function (res) {
+			if (res.code == 200) {
+				EchoMsg(res.msg, 1, '{:url("index/vhost/redir")}');
+			} else {
+				EchoMsg('error:' + res.msg);
+			}
+		})
+		.fail(function () {
+			EchoMsg('{:__("Request error, please try again later")}');
+		})
+		.always(function () {
+			l.destroy();
+		})
+	}
+
+	$("#domainortype").bind("change", function () {
+		if (this.value == "domain") {
+			$('#dom').show();
+			$('#lj').hide();
+		} else {
+			$('#lj').show();
+			$('#dom').hide();
+		}
+	});
+
+	function sublime(str) {
+		if ($('#set_type_state_' + str).html() == '{:__("Running")}') {
+			$('#type').attr('checked', 'checked');
+		} else {
+			$('#type').removeAttr('checked', 'checked');
+		}
+		if ($('#set_path_state_' + str).html() == '{:__("Open")}') {
+			$('#holdpath').attr('checked', 'checked');
+		} else {
+			$('#holdpath').removeAttr('checked', 'checked');
+		}
+
+		if ($('#path_' + str).html() == 'domain') {
+			$("#domainortype .domain").attr("selected", true);
+			$("#domainortype .path").removeAttr("selected");
+			$('#redirectdomain').val($('#ptype_' + str).html());
+			$('#dom').show();
+			$('#lj').hide();
+		} else {
+			$("#domainortype .domain").removeAttr("selected");
+			$("#domainortype .path").attr("selected", true);
+			$('#redirectpath').val($('#ptype_' + str).html());
+			$('#lj').show();
+			$('#dom').hide();
+		}
+		$('#tourl1').val($('#tourl_' + str).html());
+		$('#rTitle').html('{:__("Edit redir")}');
+		$('#redirectname').val(str);
+	}
+
+	function Redirectsub() {
+		type = $('#type').is(':checked') ? 1 : 0;
+		holdpath = $('#holdpath').is(':checked') ? 1 : 0;
+		domainortype = $('#domainortype').val();
+		if (domainortype == 'domain') {
+			domainorpath = '';
+			redirectdomain = $('#redirectdomain').val();
+		} else {
+			domainorpath = $('#redirectpath').val();
+			redirectdomain = '';
+		}
+		redirecttype = $('#redirecttype').val();
+		redirect = $('#redirect').val();
+		tourl1 = $('#tourl1').val();
+		if ($('#redirectname').val()) {
+			redirectname = $('#redirectname').val();
+		} else {
+			redirectname = '';
+		}
+		var l = $('#load_set').lyearloading({
+			opacity: 0.125,
+			spinnerSize: 'lg'
+		});
+		$.post('{:url("index/vhost/redirUp")}', {
+			redirectname: redirectname,
+			type: type,
+			holdpath: holdpath,
+			domainortype: domainortype,
+			redirectdomain: redirectdomain,
+			domainorpath: domainorpath,
+			redirecttype: redirecttype,
+			redirect: redirect,
+			tourl1: tourl1
+		}, function (res) {
+			if (res.code == 200) {
+				EchoMsg(res.msg, 1, '{:url("index/vhost/redir")}');
+			} else {
+				EchoMsg('error:' + res.msg);
+			}
+		})
+		.fail(function () {
+			EchoMsg('{:__("Request error, please try again later")}');
+		})
+		.always(function () {
+			l.destroy();
+		})
+
+
+	}
+</script>
+{/block}

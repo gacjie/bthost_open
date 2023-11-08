@@ -1,0 +1,53 @@
+{if $Request.get.info}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>{:__('Title')}</th>
+                <th>{:__('Content')}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {volist name="info.domain" id="vo" }
+            <tr>
+                <td>{:__($key)}</td>
+                {if is_array($vo)}
+
+
+                {volist name="$vo" id="vo2" key="key2"}
+
+
+                {if is_array($vo2)}
+                {volist name="$vo2" id="vo3" key="key3"}
+                <td>{:__($vo3)}</td>
+                {/volist}
+                {else/}
+                {if $key=='grade_ns'}
+                <td>
+                    {:__($vo2)},
+                    {else/}
+                    {:__($vo2)}
+                </td>
+                {/if}
+                {/if}
+
+                {/volist}
+                {else/}
+                <td>{:__($vo)}</td>
+                {/if}
+
+            </tr>
+            {/volist}
+        </tbody>
+    </table>
+</div>
+{elseif $Request.get.log}
+<pre>{volist name="info.log" id="vo" }{$vo}<br/>{/volist}</pre>
+{/if}
+<div class="hide layer-footer">
+    <label class="control-label col-xs-12 col-sm-2"></label>
+    <div class="col-xs-12 col-sm-8">
+        <button type="reset" class="btn btn-primary btn-embossed btn-close"
+            onclick="Layer.closeAll();">{:__('Close')}</button>
+    </div>
+</div>

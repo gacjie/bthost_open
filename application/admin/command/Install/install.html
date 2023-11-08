@@ -1,0 +1,257 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{:__('Installing btHost')}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
+    <meta name="renderer" content="webkit">
+
+    <link rel="stylesheet" href="__STATIC__/css/bthost_install.css">
+</head>
+
+<body>
+<div class="container">
+    <h1>
+        <img src="/logo.png" alt="btHost" class="install_logo">
+        <small class="font-small">v{$Think.config.bty.app_version}</small>
+    </h1>
+    
+    <div>
+        <p class="helps">
+            {:__('Help Tips')}<br />
+            <a href="{$link.install}" target="_blank">{:__('Install Doc')}</a>
+            <a href="{$link.qq}" target="_blank">{:__('QQ')}</a>
+            <a href="{$link.auths}" target="_blank">{:__('Auth Query')}</a>
+            <a href="{$link.web}" target="_blank">{:__('Webs')}</a>
+        </p>
+        <form method="post">
+            {if $errInfo}
+            <div class="error">
+                {$errInfo}
+            </div>
+            {/if}
+            <div id="error" style="display:none"></div>
+            <div id="success" style="display:none"></div>
+            <div id="warmtips" style="display:none"></div>
+
+            <div class="form-group">
+                <div class="form-field">
+                    <label>{:__('Mysql Hostname')}</label>
+                    <input type="text" name="mysqlHostname" value="127.0.0.1" required="">
+                </div>
+
+                <div class="form-field">
+                    <label>{:__('Mysql Database')}</label>
+                    <input type="text" name="mysqlDatabase" value="" required="">
+                </div>
+
+                <div class="form-field">
+                    <label>{:__('Mysql Username')}</label>
+                    <input type="text" name="mysqlUsername" value="root" required="">
+                </div>
+
+                <div class="form-field">
+                    <label>{:__('Mysql Password')}</label>
+                    <input type="password" name="mysqlPassword">
+                </div>
+
+                <div class="form-field">
+                    <label>{:__('Mysql Prefix')}</label>
+                    <input type="text" name="mysqlPrefix" value="bth_">
+                </div>
+
+                <div class="form-field">
+                    <label>{:__('Mysql Hostport')}</label>
+                    <input type="number" name="mysqlHostport" value="3306">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <!--<div class="form-field">-->
+                <!--    <label>{:__('security_code')}</label>-->
+                <!--    <input type="text" name="security_code" placeholder="{:__('If you do not fill in the offline authorization code, you will use the online authorization')}"/>-->
+                <!--</div>-->
+
+                <div class="form-field">
+                    <label>{:__('http')}</label>
+                    <select name="http" id="">
+                        <option value="http://">http</option>
+                        <option value="https://">https</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label>{:__('api_token')}</label>
+                    <input name="api_token" placeholder="" required="">
+                </div>
+
+                <div class="form-field">
+                    <label>{:__('api_port')}</label>
+                    <input type="number" name="api_port" value="8888" required="" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="form-field">
+                    <label>{:__('Admin Username')}</label>
+                    <input name="adminUsername" value="admin" required=""/>
+                </div>
+
+                <div class="form-field">
+                    <label>{:__('Admin Email')}</label>
+                    <input name="adminEmail" value="admin@admin.com" required="">
+                </div>
+
+                <div class="form-field">
+                    <label>{:__('Admin Password')}</label>
+                    <input type="password" name="adminPassword" required="">
+                </div>
+
+                <div class="form-field">
+                    <label>{:__('Repeat Password')}</label>
+                    <input type="password" name="adminPasswordConfirmation" required="">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="form-field">
+                    <label>{:__('Website')}</label>
+                    <input type="text" name="siteName" value="{:__('btHost')}" required=""/>
+                </div>
+
+            </div>
+
+            <div class="form-buttons">
+                <!--@formatter:off-->
+                <button type="submit" {:$errInfo?'disabled':''}>{:__('Install now')}</button>
+                <!--@formatter:on-->
+            </div>
+        </form>
+
+        <!-- jQuery -->
+        <script src="https://cdn.staticfile.org/jquery/2.1.4/jquery.min.js"></script>
+
+        <script>
+            $(function () {
+                $('form :input:first').select();
+
+                $('form').on('submit', function (e) {
+                    e.preventDefault();
+                    var form = this;
+                    var $error = $("#error");
+                    var $success = $("#success");
+                    var $button = $(this).find('button')
+                        .text("{:__('Installing')}")
+                        .prop('disabled', true);
+                    $.ajax({
+                        url: "",
+                        type: "POST",
+                        dataType: "json",
+                        data: $(this).serialize(),
+                        success: function (ret) {
+                            if (ret.code == 1) {
+                                var data = ret.data;
+                                $error.hide();
+                                $(".form-group", form).remove();
+                                $button.remove();
+                                $("#success").text(ret.msg).show();
+
+                                $buttons = $(".form-buttons", form);
+                                $("<a class='btn' href='./'>{:__('Home')}</a>").appendTo($buttons);
+
+                                if (typeof data.adminName !== 'undefined') {
+                                    var url = location.href.replace(/install\.php/, data.adminName);
+                                    $("#warmtips").html("{:__('Security tips')}" + '<a href="' + url + '">' + url + '</a>').show();
+                                    $('<a class="btn" href="' + url + '" id="btn-admin" style="background:#18bc9c">' + "{:__('Dashboard')}" + '</a>').appendTo($buttons);
+                                }
+                                localStorage.setItem("fastep", "installed");
+                            } else {
+                                $error.show().text(ret.msg);
+                                $button.prop('disabled', false).text("{:__('Install now')}");
+                                $("html,body").animate({
+                                    scrollTop: 0
+                                }, 500);
+                            }
+                        },
+                        error: function (xhr) {
+                            $error.show().text(xhr.responseText);
+                            $button.prop('disabled', false).text("{:__('Install now')}");
+                            $("html,body").animate({
+                                scrollTop: 0
+                            }, 500);
+                        }
+                    });
+                    return false;
+                });
+
+                $('input[name="api_token"],input[name="api_port"]').blur(function(e){
+                    var $error = $("#error");
+                    var $success = $("#success");
+                    var form = $('form');
+                    $success.show().text('{:__("Loading……")}');
+                    var $button = $(this).find('button')
+                    .text("{:__('Installing')}")
+                    .prop('disabled', true);
+                    $.ajax({
+                        url: "?is_check=1",
+                        type: "POST",
+                        dataType: "json",
+                        data: form.serialize(),
+                        success: function (ret) {
+                            console.log(ret);
+                            if(ret.code==1){
+                                msg = ret.msg?ret.msg:'{:__("Request error")}';
+                                $error.hide().text('');
+                                $success.show().text(msg);
+                                // $('input[name="security_code"]').val(ret.data.encode);
+                            }else{
+                                msg = ret.msg?ret.msg:'{:__("Request error")}';
+                                $success.hide().text('');
+                                $error.show().text(msg);
+                                
+                                $button.prop('disabled', false).text("{:__('Install now')}");
+                                $("html,body").animate({
+                                scrollTop: 0
+                                }, 500);
+                                $button.prop('disabled', false).text("{:__('Install now')}");
+                            }
+                            // if (ret.code == 1) {
+                            //     var data = ret.data;
+                            //     $error.hide();
+                            //     $(".form-group", form).remove();
+                            //     $button.remove();
+                            //     $("#success").text(ret.msg).show();
+
+                            //     $buttons = $(".form-buttons", form);
+                            //     $("<a class='btn' href='./'>{:__('Home')}</a>").appendTo($buttons);
+
+                            //     if (typeof data.adminName !== 'undefined') {
+                            //         var url = location.href.replace(/install\.php/, data.adminName);
+                            //         $("#warmtips").html("{:__('Security tips')}" + '<a href="' + url + '">' + url + '</a>').show();
+                            //         $('<a class="btn" href="' + url + '" id="btn-admin" style="background:#18bc9c">' + "{:__('Dashboard')}" + '</a>').appendTo($buttons);
+                            //     }
+                            //     localStorage.setItem("fastep", "installed");
+                            // } else {
+                            //     $error.show().text(ret.msg);
+                            //     $button.prop('disabled', false).text("{:__('Install now')}");
+                            //     $("html,body").animate({
+                            //         scrollTop: 0
+                            //     }, 500);
+                            // }
+                        },
+                        error: function (xhr) {
+                            $error.show().text(xhr.responseText);
+                            $success.hide().text('');
+                            $button.prop('disabled', false).text("{:__('Install now')}");
+                            $("html,body").animate({
+                                scrollTop: 0
+                            }, 500);
+                        }
+                    });
+                });
+            });
+        </script>
+    </div>
+</div>
+</body>
+</html>

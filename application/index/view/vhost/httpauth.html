@@ -1,0 +1,115 @@
+{extend name="common/base" /}
+{block name="content"}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card"  id="loading_status">
+            <div class="card-header">
+                <header class="card-title">
+                    {:__('Http auth')}
+                </header>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th colspan="2">
+                                {:__('Status')}：
+                                {if $pass_status }
+                                    <span style="color:green">
+                                        {:__('Open')}
+                                    </span>
+                                    <a href="javascript:httpauthOff()">
+                                        [{:__('Close')}]
+                                    </a>
+                                    {else /}
+                                    <span style="color:#2288cc">
+                                        {:__('Close')}
+                                    </span>
+                                {/if}
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card" id="loading_set">
+            <div class="card-header">
+                <header class="card-title">
+                    {:__('Set http auth')}
+                </header>
+            </div>
+            <div class="card-body">
+                <form action="" method="post">
+                    <div class="form-group">
+                        <label for="exampleFormControlInput1">{:__('Username')}：</label>
+                        <input class="span3 form-control" id="username" name="username" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exampleFormControlInput1">{:__('Password')}：</label>
+                        <input class="span3 form-control" id="password" name="password" type="password" />
+                    </div>
+                    <div class="form-group">
+                        <input class="btn btn-warning" onclick="httpauthSet()" type="button" value="{:__('Save')}">
+                    </div>
+                    <hr>
+                    <small class="text-muted">
+                        <span style="color:red">！</span> {:__('Note: This system does not record the password information of this account. Please remember it by yourself. If you forget it, please close it and submit the password again.')}
+                    </small>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+    function httpauthSet() {
+        username = $('#username').val();
+        password = $('#password').val();
+        if (!username || !password) {
+            EchoMsg('{:__("Can not be empty")}');
+            return false;
+        }
+        var l = $('#loading_set').lyearloading({
+            opacity: 0.125,
+            spinnerSize: 'lg'
+        });
+        $.post('{:url("index/vhost/httpauthSet")}', {
+            username: username,
+            password: password
+        }, function (res) {
+            EchoMsg(res.msg, 1);
+        })
+        .fail(function () {
+            EchoMsg('{:__("Request error, please try again later")}');
+        })
+        .always(function () {
+            l.destroy();
+        })
+    }
+
+    function httpauthOff() {
+        var l = $('#loading_status').lyearloading({
+            opacity: 0.125,
+            spinnerSize: 'lg'
+        });
+        $.post('{:url("index/vhost/httpauthOff")}', {
+            auth: 'off'
+        }, function (res) {
+            EchoMsg(res.msg, 1);
+        })
+        .fail(function () {
+            EchoMsg('{:__("Request error, please try again later")}');
+        })
+        .always(function () {
+            l.destroy();
+        })
+    }
+</script>
+{/block}

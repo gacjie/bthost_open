@@ -1,0 +1,51 @@
+<nav class="sidebar-main">
+    <ul class="nav-drawer">
+        <li class="nav-item active"> <a class="multitabs" href="main""><i class="mdi mdi-home"></i> <span>{:__('Console center')}</span></a> </li>
+        <li class="nav-item nav-item-has-subnav">
+        <a href="javascript:void(0)"><i class="mdi mdi-hexagon-multiple"></i> <span>{:__('basic')}</span></a>
+        <ul class="nav nav-subnav">
+            <li> <a class="multitabs {:$auth->check('vhost/domain')?'':'d-none'}" href="{:url('index/vhost/domain')}">{:__('Domain bind')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/pass')?'':'d-none'}" href="{:url('index/vhost/pass')}">{:__('Pass')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/speed')?'':'d-none'}" href="{:url('index/vhost/speed')}">{:__('Speed')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/Rewrite301')?'':'d-none'}" href="{:url('index/vhost/Rewrite301')}">{:__('Rewrite 301')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/redir')?'':'d-none'}" href="{:url('index/vhost/redir')}">{:__('Redir')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/defaultfile')?'':'d-none'}" href="{:url('index/vhost/defaultfile')}">{:__('Default file')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/rewrite')?'':'d-none'}" href="{:url('index/vhost/rewrite')}">{:__('Rewrite')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/ssl')?'':'d-none'}" href="{:url('index/vhost/ssl')}">{:__('Ssl')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/runPath')?'':'d-none'}" href="{:url('index/vhost/runPath')}">{:__('Run path')}</a> </li>
+            <li> <a target="_blank" class="{$phpmyadmin|default=''?'':'d-none'}" href="{if isset($phpmyadmin)&&$phpmyadmin}{$phpmyadmin}{else/}{:__('Not sql')}{/if}">{:__('Sql console')}</a> </li>
+        </ul>
+        </li>
+        <li class="nav-item nav-item-has-subnav">
+        <a href="javascript:void(0)"><i class="mdi mdi-format-align-justify"></i> <span>{:__('File backup')}</span></a>
+        <ul class="nav nav-subnav">
+            <li> <a class="multitabs {:$auth->check('vhost/file')?'':'d-none'}" href="{:url('index/vhost/file')}">{:__('File manager')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/file_ftp')?'':'d-none'}" href="{:url('index/vhost/file_ftp')}">{:__('File(ftp)')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/back')?'':'d-none'}" href="{:url('index/vhost/back')}">{:__('Backup')}</a> </li>
+        </ul>
+        </li>
+        <li class="nav-item nav-item-has-subnav">
+        <a href="javascript:void(0)"><i class="mdi mdi-sort-variant-lock"></i> <span>{:__('Security settings')}</span></a>
+        <ul class="nav nav-subnav">
+            <li> <a class="multitabs {:$auth->check('vhost/protection')?'':'d-none'}" href="{:url('index/vhost/protection')}">{:__('Protection')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/waf')?'':'d-none'}" href="{:url('index/vhost/waf')}">{:__('Waf')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/dirauth')?'':'d-none'}" href="{:url('index/vhost/dirauth')}">{:__('Dir auth')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/proof')?'':'d-none'}" href="{:url('index/vhost/proof')}">{:__('Proof')}</a> </li>
+        </ul>
+        </li>
+        <li class="nav-item nav-item-has-subnav">
+        <a href="javascript:void(0)"><i class="mdi mdi-webpack"></i> <span>{:__('Advanced features')}</span></a>
+        <ul class="nav nav-subnav">
+            <li> <a class="multitabs {:$auth->check('vhost/sitelog')?'':'d-none'}" href="{:url('index/vhost/sitelog')}">{:__('Site log')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/sqltools')?'':'d-none'}" href="{:url('index/vhost/sqltools')}">{:__('Sql tools')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/httpauth')?'':'d-none'}" href="{:url('index/vhost/httpauth')}">{:__('Http auth')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/deployment')?'':'d-none'}" href="{:url('index/vhost/deployment')}">{:__('Deployment')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/deployment_new')?'':'d-none'}" href="{:url('index/vhost/deployment_new')}">{:__('Deployment(new)')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/total')?'':'d-none'}" href="{:url('index/vhost/total')}">{:__('Total')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/proxy')?'':'d-none'}" href="{:url('index/vhost/proxy')}">{:__('Proxy')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/speed_cache')?'':'d-none'}" href="{:url('index/vhost/speed_cache')}">{:__('speedCache')}</a> </li>
+            <li> <a class="multitabs {:$auth->check('vhost/hostreset')?'':'d-none'}" href="{:url('index/vhost/hostreset')}">{:__('Host reset')}</a> </li>
+        </ul>
+        </li>
+    </ul>
+    </nav>

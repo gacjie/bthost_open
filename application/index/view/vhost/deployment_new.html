@@ -1,0 +1,99 @@
+{extend name="common/base" /}
+{block name="content"}
+<div class="row">
+	<div class="col-md-12">
+		<div class="card">
+			<div class="card-body" id="loading_box">
+				<small class="text-muted">
+					<span style="color:red">！</span> {:__('Note: Please install according to the recommended PHP version. If the program runs abnormally, please adjust the PHP version settings.')}<br>
+					<span style="color:red">！</span> {:__("The deployment time is variable and depends on the network conditions, so don\'t be nervous if there is no response for a long time.")}<br>
+					<span style="color:red">！</span> {:__('The automatic deployment program will not clear the website content, so please try to ensure that the website content is empty before deployment to avoid file/folder loss.')}<br>
+					<span style="color:red">！</span> {:__('This feature is provided by bt.cn with technical support. If the program deployment fails repeatedly, please contact the site administrator.')}<br>
+				</small>
+				<hr>
+				<div class="table-responsive">
+
+					<form action="" method="post">
+						<table class="table  table-striped table-hover table-sm">
+							<thead>
+								<tr>
+									<th style="border:0" colspan="2">{:__('List of automatic deployment programs')}</th>
+								</tr>
+								<tr>
+									<th>{:__('Name')}</th>
+									<th>{:__('Version')}</th>
+									<th>{:__('Introduction')}</th>
+									<th>{:__('Php version')}</th>
+									<th>{:__('Author')}</th>
+									<th>{:__('Installed')}</th>
+									<th>{:__('Operation')}</th>
+								</tr>
+							</thead>
+							<tbody>
+								{volist name="deploymentList.list" id="program" empty="__('Empty')"}
+								<tr>
+									<td>{$program.title}</td>
+									<td>{$program.version|default="--"}</td>
+									<td>{$program.ps|default="--"}</td>
+									<td>{$program.php|default="--"}</td>
+									<td><a href="{$program.official}" target="_blank">{$program.author}</a></td>
+									<td>{$program.count|default="0"}</td>
+									<td>
+										<a href="javascript:deploymentSet('{$program.name}')"
+										class="btn btn-success btn-xs btn-label"><label><i
+												class="mdi mdi-checkbox-marked-circle-outline"></i></label>{:__('Execute')}</a></td>
+								</tr>
+								{/volist}
+							</tbody>
+						</table>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+	function deploymentSet(dep) {
+		if (!dep) {
+			EchoMsg('{:__("Unexpected situation")}',1);
+			return false;
+		}
+		$.confirm({
+			title: '{:__("Reminder")}',
+			content: '{:__("Automatic deployment will overwrite the original content of the site, please confirm")}',
+			icon: 'mdi mdi-alert',
+			animation: 'scale',
+			closeAnimation: 'zoom',
+			buttons: {
+				confirm: {
+					text: '{:__("Confirm")}',
+					btnClass: 'btn-orange',
+					action: function () {
+						var l = $('#loading_box').lyearloading({
+							opacity: 0.125,
+							spinnerSize: 'lg'
+						});
+						$.post('{:url("index/vhost/deploymentSet")}', {
+							dep: dep,
+							is_new:1
+						}, function (res) {
+							EchoMsg(res.msg,1);
+						})
+						.fail(function(){
+							EchoMsg('{:__("Request timed out, please wait to see if the website is deployed")}');
+						})
+						.always(function(){
+							l.destroy();
+						})
+					}
+				},
+				'{:__("Cancel")}': function () {
+
+				}
+			}
+		});
+	}
+</script>
+{/block}

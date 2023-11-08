@@ -1,0 +1,64 @@
+{extend name="common/base" /}
+{block name="content"}
+<div class="row">
+
+    <div class="col-lg-12">
+        <div class="card" id="loading_box">
+            <header class="card-header">
+                <div class="card-title">{:__("Host reset")}</div>
+            </header>
+            <div class="card-body">
+                <div id="toolbar" class="toolbar-btn-action">
+                    <button id="btn_reset" type="button" class="btn btn-primary m-r-5 btn_reset" data-type="retable">
+                        {:__("Host reset")}
+                    </button>
+                </div>
+                <hr>
+                <small class="text-danger warning_info">
+                    <span class="text-danger">!</span> 【{:__('Warning')}】{:__('The host reset will delete all the website and all data files in the website (including but not limited to host backup, ssl certificate, 301 configuration, pseudo static, running directory, subdirectory, reverse proxy, log) (excluding database), which is a high-risk operation , Please backup and download the source code and data in the host in advance. If there is any loss caused by accident, we will not be responsible')}<br>
+                    <span class="text-danger">!</span> 【{:__('Warning')}】{:__('Site reset will automatically release all manually bound domain information except the gift domain name. If you need to use it, please try to rebind the domain name (including subdirectories)')}<br>
+                    <span class="text-danger">!</span> 【{:__('Warning')}】{:__('There is a certain chance that the host will fail to reset. If it fails, please contact the webmaster for manual reset operation')}<br>
+                    <span class="text-danger">!</span> 【{:__('Warning')}】{:__('After the site is reset, please check whether the site information and functions can be used normally. If you have any questions, please contact the webmaster with a picture')}<br>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="script"}
+<script>
+    $('#btn_reset').click(function () {
+        $.confirm({
+            title: '{:__("Please read carefully! ! !")}',
+            content: $('.warning_info').html(),
+            icon: 'mdi mdi-alert',
+            animation: 'scale',
+            closeAnimation: 'zoom',
+            buttons: {
+                confirm: {
+                    text: '{:__("Execute")}',
+                    btnClass: 'btn-orange',
+                    action: function () {
+                        var l = $('#loading_box').lyearloading({
+                            opacity: 0.125,
+                            spinnerSize: 'lg'
+                        });
+                        $.post('{:url("index/vhost/hostreset")}', {}, function (res) {
+                                EchoMsg(res.msg);
+                            })
+                            .fail(function () {
+                                EchoMsg('{:__("Request error, please try again later")}');
+                            })
+                            .always(function () {
+                                l.destroy();
+                            })
+                    }
+                },
+                '{:__("Cancel")}': function () {
+
+                }
+            }
+        });
+    });
+</script>
+{/block}

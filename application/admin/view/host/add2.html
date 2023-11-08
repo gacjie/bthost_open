@@ -1,0 +1,94 @@
+<div class="panel panel-default panel-intro">
+    <div class="panel-heading">
+        {:build_heading(null,FALSE)}
+        <ul class="nav nav-tabs" data-field="status">
+            <li class="active"><a href="#t-local" data-value="" data-toggle="tab">{:__('Add Local')}</a></li>
+        </ul>
+    </div>
+    <div class="panel-body">
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade in active" id="t-local">
+                <form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+                    <div class="col-xs-12 col-sm-12">
+                        <input type="hidden" name="row[bt_id]" id="c-bt_id">
+                        <div class="col-xs-12 col-md-12">
+                            <div class="form-group">
+                                <label for="c-sort_id">站点分类</label>
+                                <input type="text" name="row[sort_id]" data-source="ajax/sortlist" data-field="name"
+                                    data-rule="" class="form-control selectpage" id="c-sort_id" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12">
+                            <div class="form-group">
+                                <label for="c-bt_name">站点</label>
+                                <input type="text" name="row[bt_name]" data-source="host/weblist" data-field="name"
+                                    data-primary-key="name" data-page-size="15" data-pagination="true"
+                                    data-rule="required" class="form-control selectpage" id="c-bt_name" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12">
+                            <div class="form-group">
+                                <label for="c-ftp_name">FTP</label>
+                                <input type="text" name="row[ftp_name]" data-source="host/ftplist" data-field="name"
+                                    data-primary-key="name" data-rule="" class="form-control selectpage" id="c-ftp_name"
+                                    placeholder="">
+                                <small class="text-danger">ftp具有操作网站目录权限，请匹配站点，否则容易造成权限紊乱</small>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12">
+                            <div class="form-group">
+                                <label for="c-sql_name">数据库</label>
+                                <input type="text" name="row[sql_name]" data-source="host/sqllist" data-field="name"
+                                    data-primary-key="name" data-rule="" class="form-control selectpage" id="c-sql_name"
+                                    placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12">
+                            <div class="form-group">
+                                <label for="c-user_id">所属用户</label>
+                                <input type="text" name="row[user_id]" data-source="user/user/index"
+                                    class="form-control selectpage" data-field="username" data-rule="required"
+                                    id="c-user_id" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12">
+                            <div class="form-group">
+                                <label for="c-endtime">到期时间</label>
+                                <input id="c-endtime" data-rule="required" class="form-control datetimepicker"
+                                    data-date-format="YYYY-MM-DD" data-use-current="true" name="row[endtime]"
+                                    type="text" value="">
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12">
+                            <div class="form-group">
+                                <label for="c-notice">站点备注</label>
+                                <textarea name="row[notice]" id="c-notice" cols="30" rows="5"
+                                    class="form-control editor"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12">
+                            <div class="form-group">
+                                <label for="sort">{:__('Status')}:</label>
+                                <div class="radio">
+                                    {foreach name="statusList" item="vo"}
+                                    <label for="row[status]-{$key}"><input id="row[status]-{$key}" name="row[status]"
+                                            type="radio" value="{$key}" {in name="key" value="normal" }checked{/in} />
+                                        {$vo}</label>
+                                    {/foreach}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group layer-footer">
+                        <label class="control-label col-xs-12 col-sm-2"></label>
+                        <div class="col-xs-12 col-sm-8">
+                            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+                            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

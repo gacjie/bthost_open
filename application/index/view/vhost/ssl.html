@@ -1,0 +1,406 @@
+{extend name="common/base" /}
+{block name="css"}
+	<link rel="stylesheet" href="__CDN____STATIC__/css/host_ssl.css?v={$static_version}">
+{/block}
+{block name="content"}
+<div class="row">
+	<div class="col-md-12">
+		<div class="card">
+			<div class="card-header">
+				<header class="card-title">
+					{:__('Ssl setting')}
+				</header>
+			</div>
+			<div class="card-body">
+				<table class="table table-bordered">
+					<thead>
+						<tr>
+							<th colspan="2">SSL{:__('Status')}：
+								{if $GetSSL.status }
+									<span style="color:green">{:__('Open')}</span><a href="javascript:sslOff()">[{:__('Close')}]</a>
+									{else /}
+									<span style="color:#2288cc">{:__('Close')}</span>
+								{/if}
+							</th>
+							<th colspan="2">{:__('Mandatory HTTPS')}：<input type="checkbox" id="toHttps" {$GetSSL.httpTohttps ? 'checked' :''}></th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+				{notempty name='GetSSL.cert_data'}
+				<div class="alert alert-success" role="alert">
+					<div class="row">
+						<div class="col-lg-6 col-md-6">{:__('Ssl brand')}：{$GetSSL.cert_data.issuer}</div>
+						<div class="col-lg-6 col-md-6">{:__('Ssl domains')}：{:implode("、",$GetSSL.cert_data.dns)}</div>
+						<div class="col-lg-6 col-md-6">{:__('Createtime')}：{$GetSSL.cert_data.notBefore}</div>
+						<div class="col-lg-6 col-md-6">{:__('Endtime')}：{$GetSSL.cert_data.notAfter}</div>
+					</div>
+				</div>
+				{/notempty}
+
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+		<div class="card" id="ssl_loading">
+			<div class="card-header">
+				<header class="card-title">
+					{:__('Certificate request')}
+				</header>
+			</div>
+			<div class="card-body">
+				<ul class="nav nav-tabs">
+					<li class="nav-item">
+						<a class="nav-link active" data-toggle="tab" href="#ssl_status" aria-selected="true">{:__('Bt ssl')}</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" data-toggle="tab" href="#ssl_config" aria-selected="false">{:__("Let's Encrypt")}</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" data-toggle="tab" href="#ssl_commercial" aria-selected="false">{:__('Commercial ssl')}</a>
+					</li>
+				</ul>
+				<div id="myTabContent" class="tab-content">
+					<div class="tab-pane fade active show in" id="ssl_status">
+						<div class="input-group">
+							<select class="form-control" id="domainList">
+								{volist name="domainList" id="domain"}
+								<option value="{$domain.name}">{$domain.name}</option>
+								{/volist}
+							</select>
+							<div class="input-group-append">
+								<button class="btn btn-outline-secondary btn-success" type="button"
+									onclick="sslApply()">{:__('Apply')}</button>
+							</div>
+						</div>
+						<hr>
+						<small class="text-muted">
+							<li>{:__('Before applying, please make sure that the domain name has been resolved. Failure to resolve this will cause the review to fail(Include root domain)')}</li>
+							<li>{:__('Pagoda SSL application is TrustAsia DV SSL CA-G5 original price: 1900 yuan /1 year, only supports single domain name application,current users free!')}</li>
+							<li>{:__('The validity period is 1 year. Renewal is not supported. You need to reapply after expiration.')}</li>
+							<li>{:__('It is recommended to apply for a certificate with a domain name whose second-level domain name is www. At this time, the system will give the top-level domain name as an optional name by default.')}</li>
+							<li>{:__('When the SSL default site is not specified, the site without SSL will be directly accessed to the site with SSL enabled using HTTPS')}</li>
+							<li class="text-danger">{:__('If it prompts [Order already exists] when re-applying for the certificate, please contact the administrator to delete')}</li>
+							<li class="text-danger">{:__('If your site uses CDN, high-defense IP, reverse proxy, 301 redirect and other functions, it may cause verification failure')}</li>
+							<li class="text-danger">{:__('To apply for a certificate such as www.xxxxxx.cn with www as the second-level domain name, you need to bind and resolve the top-level domain name (xxxxxx.cn), otherwise the verification will fail')}</li>
+						</small>
+					</div>
+					<div class="tab-pane fade" id="ssl_config">
+						{if $Domains.domains}
+						{volist name="Domains.domains" id="domain"}
+						<div class="custom-control custom-checkbox custom-control-inline">
+							<input type="checkbox" id="customCheckboxInline{$i}" name="letsDomain"
+								class="custom-control-input" value="{$domain.name}">
+							<label class="custom-control-label" for="customCheckboxInline{$i}">{$domain.name}</label>
+						</div>
+						{/volist}
+						<hr>
+						<div class="form-group">
+							<p><a href="javascript:sslApplyLets();" class="btn btn-success">{:__('Apply')}</a> <a
+									href="javascript:sslrenewlets();" class="btn btn-warning">{:__('Ssl renew')}</a></p>
+						</div>
+						<hr>
+						<small class="text-muted">
+							<li>{:__('Before applying, please make sure that the domain name has been resolved. Failure to resolve this will cause the review to fail(Include root domain)')}</li>
+							<li>{:__("Let\'s Encrypt free certificate, valid for 3 months, supports multiple domain names. Automatic renewal by default")}</li>
+							<li>{:__('If your site uses CDN, high-defense IP, reverse proxy, 301 redirect and other functions, it may cause verification failure')}</li>
+							<li>{:__('When the SSL default site is not specified, the site without SSL will be directly accessed to the site with SSL enabled using HTTPS')}</li>
+						</small>
+						{/if}
+					</div>
+					<div class="tab-pane fade" id="ssl_commercial">
+						{notempty name='GetProductList.data'}
+						<div class="row">
+							<div class="alert alert-info col-lg-12 col-md-12" role="alert">
+								<i class="mdi mdi-alert-decagram"></i> {:__('To apply for a business certificate, please contact the administrator')}
+							</div>
+							<div class="col-lg-6 col-md-6">
+								<div class="line"> <span class="tname">{:__('Ssl brand')}</span>
+									<div class="info-r"> <a href="javascript:;" class="ssl-brand-info">{:__('Sectigo (formerly Comodo CA) is the CA company with the highest share of the global SSL certificate market. At present, nearly 40% of SSL certificate users choose Sectigo. Because of its safety and low price, it is trusted and welcomed by a large number of webmasters.')}</a> </div>
+								</div>
+							</div>
+							<div class="col-lg-6 col-md-6">
+								<div class="line"> <span class="tname">{:__('Ssl compared')}</span>
+									<div class="info-r">
+										<table class="compared_ssl_list">
+											<thead>
+												<tr>
+													<th>{:__('Ssl type')}</th>
+													<th>{:__('Free ssl')}</th>
+													<th>{:__('Commercial ssl')}</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td class="one_title">{:__('Personal use')}</td>
+													<td class="yes"></td>
+													<td class="yes"></td>
+												</tr>
+												<tr>
+													<td class="one_title">{:__('Enterprise use')}</td>
+													<td class="no"></td>
+													<td class="yes"></td>
+												</tr>
+												<tr>
+													<td class="one_title">{:__('Multi-domain/pan-domain/IP certificate')}</td>
+													<td class="no"></td>
+													<td class="yes"></td>
+												</tr>
+												<tr>
+													<td class="one_title">{:__('Payment protection')}</td>
+													<td class="no"></td>
+													<td class="yes"></td>
+												</tr>
+												<tr>
+													<td class="one_title">{:__('Technical Support')}</td>
+													<td class="no"></td>
+													<td class="yes"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+							<div class="col-lg-12 col-md-12">
+								<div class="line"> <span class="tname">{:__('Ssl type')}</span>
+									<div class="info-r">
+										<div class="divtable ssl_class_table">
+											<table class="table table-striped">
+												<tbody>
+													{volist name='GetProductList.data' id='vo'}
+														<tr data-index="0" class="active">
+															<td><span>{$vo.title}</span></td>
+															<td style="text-align: right;"><span
+																	style="color: #bbbbbb;text-decoration: line-through;margin-right: 15px;"
+																	class="mr5">{:__('Original price:%s yuan/year',$vo.src_price)}</span><span style="color: #FF6232;">{:__('%s yuan/1year',$vo.price)}</span>
+															</td>
+														</tr>
+													{/volist}
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						{/notempty}
+						<hr>
+						<small class="text-muted">
+							<li>{:__('Before applying, please make sure that the domain name has been resolved. Failure to resolve this will cause the review to fail(Include root domain)')}</li>
+							<li>{:__('The validity period is 1 year. Renewal is not supported. You need to reapply after expiration.')}</li>
+							<li>{:__('When the SSL default site is not specified, the site without SSL will be directly accessed to the site with SSL enabled using HTTPS')}</li>
+							<li class="text-danger">{:__('If your site uses CDN, high-defense IP, reverse proxy, 301 redirect and other functions, it may cause verification failure')}</li>
+							<li class="text-danger">{:__('To apply for a certificate such as www.xxxxxx.cn with www as the second-level domain name, you need to bind and resolve the top-level domain name (xxxxxx.cn), otherwise the verification will fail')}</li>
+							<li class="text-danger">{:__('Compared with ordinary certificates, commercial certificates have higher security, compensation guarantee and support for wildcards and multiple domain names. <a href="https://www.racent.com/sectigo-ssl" target="_blank">Click to view</a>')}</li>
+						</small>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+		<div class="card">
+			<div class="card-header">
+				<header class="card-title">
+					{:__('Certificate configuration')}
+				</header>
+			</div>
+			<div class="card-body" id="sslSet_loading">
+				<form action="" method="post">
+					<div class="row">
+						<div class="col-lg-6 col-md-6">
+							<label for="key">{:__('KEY')}：</label>
+							<textarea name="key" id="key" style="width:100%;line-height:22px" class="form-control"
+								rows="10">{$GetSSL.key|default=""}</textarea>
+						</div>
+						<div class="col-lg-6 col-md-6">
+							<label for="csr">{:__('PEM')}：</label>
+							<textarea name="csr" id="csr" style="width:100%;line-height:22px" class="form-control"
+								rows="10">{$GetSSL.csr|default=""}</textarea>
+						</div>
+
+						<div class="col-lg-12 col-md-12">
+							<div class="form-group">
+								<input type="button" value="{:__('Submit')}" class="btn btn-warning" onclick="sslSet()">
+							</div>
+						</div>
+					</div>
+
+
+				</form>
+				<hr>
+				<small class="text-muted">
+					<li>{:__('Paste your *.key and *.pem content, then save')}[<a href="https://www.bt.cn/bbs/thread-704-1-1.html"
+							target="_blank">{:__('Help')}</a>]。</li>
+					<li>{:__('If the browser prompts that the certificate chain is incomplete, please check whether the PEM certificate is correctly spliced')}</li>
+					<li>{:__('PEM format certificate = domain name certificate.crt + root certificate (root_bundle).crt')}</li>
+					<li>{:__('When the SSL default site is not specified, the site without SSL will be directly accessed to the site with SSL enabled using HTTPS')}</li>
+					<li>{:__('If you cannot use HTTPS access after opening, please check whether the security group correctly allows port 443')}</li>
+				</small>
+			</div>
+		</div>
+	</div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+	$(function () {
+		$("#toHttps").change(function () {
+			var a = $("#toHttps").is(':checked') ? '1' : '0';
+			$.post('{:url("index/vhost/toHttps")}', {
+					toHttps: a
+				}, function (data) {
+					EchoMsg(data.msg);
+				})
+				.fail(function () {
+					EchoMsg('{:__("Request error, please try again later")}');
+				})
+		});
+	});
+
+	function sslSet() {
+		key = $('#key').val();
+		csr = $('#csr').val();
+		if (!key || !csr) {
+			EchoMsg('{:__("Can not be empty")}');
+			return false;
+		}
+		var l = $('#sslSet_loading').lyearloading({
+			opacity: 0.125,
+			spinnerSize: 'lg'
+		});
+		$.post('{:url("index/vhost/sslSet")}', {
+				key: key,
+				csr: csr
+			}, function (res) {
+				EchoMsg(res.msg);
+			})
+			.fail(function () {
+				EchoMsg('{:__("Request error, please try again later")}');
+			})
+			.always(function () {
+				l.destroy();
+			})
+	}
+
+	function sslOff() {
+		$.post('{:url("index/vhost/sslOff")}', {
+				ssl: 'off'
+			}, function (res) {
+				EchoMsg(res.msg);
+			})
+			.fail(function () {
+				EchoMsg('{:__("Request error, please try again later")}');
+			})
+	}
+
+	function sslApply() {
+		domain = $('#domainList').val();
+		if (!domain) {
+			EchoMsg('{:__("Please select a domain")}')
+			return false;
+		}
+		var l = $('#ssl_loading').lyearloading({
+			opacity: 0.125,
+			spinnerSize: 'lg'
+		});
+		$.post('{:url("index/vhost/sslApply")}', {
+				domain: domain
+			}, function (data, textStatus, xhr) {
+				EchoMsg(data.msg);
+			})
+			.fail(function () {
+				EchoMsg('{:__("Request error, please try again later")}');
+			})
+			.always(function () {
+				l.destroy();
+			})
+	}
+
+	function sslApplyLets() {
+		domain = jqchk();
+		if (!domain) {
+			EchoMsg('{:__("Please select a domain")}')
+			return false;
+		}
+		// 设置成功的话其实就不用获取日志，因为申请成功后会取消标记状态，且请求是同步的
+		// setTimeout("getletlog()", 1000);
+		var l = $('#ssl_loading').lyearloading({
+			opacity: 0.125,
+			spinnerSize: 'lg'
+		});
+		$.post('{:url("index/vhost/sslApplyLets")}', {
+				domain: domain
+			}, function (data, textStatus, xhr) {
+				EchoMsg(data.msg);
+			})
+			.fail(function () {
+				EchoMsg('{:__("Request error, please try again later")}');
+			})
+			.always(function () {
+				l.destroy();
+			})
+	}
+
+	function getletlog() {
+		$.ajax({
+				url: '{:url("getFileLog")}',
+				type: 'post',
+				dataType: 'json',
+				async:false,
+			})
+			.done(function (res) {
+				if (res.code == 1) {
+					EchoMsg(res.msg);
+					getletlog();
+				} else {
+					return false;
+				}
+			})
+			.fail(function () {
+				EchoMsg('{:__("Unexpected situation")}');
+			})
+			.always(function () {
+				console.log("complete");
+			});
+
+	}
+
+	function sslrenewlets() {
+		var l = $('#ssl_loading').lyearloading({
+			opacity: 0.125,
+			spinnerSize: 'lg'
+		});
+		$.post('{:url("index/vhost/sslRenewLets")}', '', function (data, textStatus, xhr) {
+				try {
+					EchoMsg(data.msg + '<br />{:__("Success")}：' + data[0].sucess_list.length + '{:__("Fail")}：' + data[0].err_list.length);
+				} catch (error) {
+					EchoMsg(data.msg);
+				}
+			})
+			.fail(function () {
+				EchoMsg('{:__("Request error, please try again later")}');
+			})
+			.always(function () {
+				l.destroy();
+			})
+	}
+
+	function jqchk() {
+
+		var chk_value = [];
+
+		$('input[name="letsDomain"]:checked').each(function () {
+
+			chk_value.push($(this).val());
+
+		});
+		return chk_value.length == 0 ? false : chk_value;
+	}
+</script>
+{/block}

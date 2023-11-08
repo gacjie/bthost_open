@@ -1,0 +1,13 @@
+.login-logo {
+    display: none;
+}
+
+@media screen and (max-width: 650px) {
+    .login-logo {
+        display: block;
+    }
+
+    .login-logo2 {
+        display: none;
+    }
+}

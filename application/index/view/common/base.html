@@ -1,0 +1,30 @@
+{__NOLAYOUT__}
+<!DOCTYPE html>
+<html>
+    <head>
+        {include file="common/meta" /}
+        <link href="__CDN____STATIC__/Light-Year/css/bootstrap.min.css?v={$static_version}" rel="stylesheet">
+        <link href="__CDN____STATIC__/Light-Year/css/materialdesignicons.min.css?v={$static_version}" rel="stylesheet">
+        <link href="__CDN____STATIC__/Light-Year/css/style.min.css?v={$static_version}" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="__CDN____STATIC__/Light-Year/js/jquery-confirm/jquery-confirm.min.css?v={$static_version}">
+        <script>
+            //将Config渲染到全局
+            window.Config = require.config;
+        </script>
+        {block name="css"}{/block}
+    </head>
+    <body>
+        <div class="container-fluid p-t-15">
+            {block name="content"}{/block}
+        </div>
+        <script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/jquery.min.js?v={$static_version}"></script>
+        <script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/popper.min.js?v={$static_version}"></script>
+        <script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/bootstrap.min.js?v={$static_version}"></script>
+        <script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/main.min.js?v={$static_version}"></script>
+        <script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/lyear-loading.js?v={$static_version}"></script>
+        <script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/jquery-confirm/jquery-confirm.min.js?v={$static_version}"></script>
+        <script src="__CDN____STATIC__/Light-Year/js/script.js?v={$static_version}"></script>
+        
+        {block name="script"}{/block}
+    </body>
+</html>

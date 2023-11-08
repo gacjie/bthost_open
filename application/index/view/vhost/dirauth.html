@@ -1,0 +1,134 @@
+{extend name="common/base" /}
+{block name="content"}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <header class="card-title">
+                    {:__('Dir auth')}
+                </header>
+            </div>
+            <div class="card-body">
+                <form action="" method="post">
+                    <table id="proxy_list" class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>{:__('Name')}</th>
+                                <th>{:__('Dir')}</th>
+                                <th style="text-align:right;">{:__('Operation')}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {volist name="dirAuthList" id="list"}
+                            <tr>
+                                <td>{$list.name}</td>
+                                <td>{$list.site_dir}</td>
+                                <td style="text-align:right" data-index="0">
+                                    <a class="btlink" href="javascript:del('{$list.name}');">{:__('Delete')}</a>
+                                </td>
+                            </tr>
+                            {/volist}
+                        </tbody>
+                    </table>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <header class="card-title">
+                    {:__('Add dir auth')}
+                </header>
+            </div>
+            <div class="card-body" id="loading_box">
+                <div class="form-group">
+                    <label for="sitedir">{:__('Dir')}</label>
+                    <input name="sitedir" id="sitedir" class="bt-input-text mr5 form-control" type="text" value="/"
+                        placeholder="{:__('Ends with /')}">
+                </div>
+
+
+                <div class="form-group">
+                    <label for="username">{:__('Username')}</label>
+                    <input name="username" id="username" class="bt-input-text mr5 form-control" type="text" value="">
+                </div>
+                <div class="form-group">
+                    <label for="passwd">{:__('Password')}</label>
+                    <input name="passwd" id="passwd" class="bt-input-text mr5 form-control" type="text" value="">
+                </div>
+                <div class="form-group">
+                    <input type="button" value="{:__('Submit')}" onclick="dirauthAdd()" class="btn btn-warning">
+                </div>
+                <hr>
+                <small class="text-muted">
+                    <span class="text-danger">！</span> {:__('After the directory is protected, you need to enter the account password to access')}<br>
+                    <span class="text-danger">！</span> {:__('For example, if I set a protected directory /test/, then I must enter the account password to access http://aaa.com/test/')}<br>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+    function del(str) {
+        var l = $('#loading_box').lyearloading({
+            opacity: 0.125,
+            spinnerSize: 'lg'
+        });
+        $.post('{:url("index/vhost/delDirAuth")}', {
+                delname: str
+            }, function (res) {
+                if (res.code == 1) {
+                    EchoMsg(res.msg, 1, '{:url("index/vhost/dirauth")}');
+                } else {
+                    EchoMsg('error:' + res.msg);
+                }
+            })
+            .fail(function () {
+                EchoMsg('{:__("Request error, please try again later")}');
+            })
+            .always(function(){
+                l.destroy();
+            })
+    }
+
+
+    function dirauthAdd() {
+        sitedir = $('#sitedir').val();
+        username = $('#username').val();
+        passwd = $('#passwd').val();
+        if (!sitedir || !username || !passwd) {
+            EchoMsg('{:__("Can not be empty")}');
+            return false;
+        }
+        var l = $('#loading_box').lyearloading({
+            opacity: 0.125,
+            spinnerSize: 'lg'
+        });
+        $.post('{:url("index/vhost/setDirAuth")}', {
+                sitedir: sitedir,
+                username: username,
+                passwd: passwd
+            }, function (res) {
+                if (res.code == 1) {
+                    EchoMsg(res.msg, 1, '{:url("index/vhost/dirauth")}');
+                } else {
+                    EchoMsg('error:' + res.msg);
+                }
+            })
+            .fail(function () {
+                EchoMsg('{:__("Request error, please try again later")}');
+            })
+            .always(function(){
+                l.destroy();
+            })
+
+
+    }
+</script>
+{/block}

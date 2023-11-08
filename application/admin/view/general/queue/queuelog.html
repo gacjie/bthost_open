@@ -1,0 +1,7 @@
+<pre>
+{volist name="row" id="vo" key="k1"}
+[{$vo.createtime|date="Y-m-d H:i:s",###}]({$vo.call_time}s){$vo.logs}
+{/volist}
+</pre>
+<center>总计{$count|default="0"}条</center>
+<center>{$row->render()}</center>

@@ -1,0 +1,118 @@
+{__NOLAYOUT__}
+<!DOCTYPE html>
+<html>
+    <head>
+        {include file="common/meta" /}
+        <link href="__CDN____STATIC__/Light-Year/css/bootstrap.min.css?v={$static_version}" rel="stylesheet">
+        <link href="__CDN____STATIC__/Light-Year/css/materialdesignicons.min.css?v={$static_version}" rel="stylesheet">
+        <link href="__CDN____STATIC__/Light-Year/css/style.min.css?v={$static_version}" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="__CDN____STATIC__/Light-Year/js/jquery-confirm/jquery-confirm.min.css?v={$static_version}">
+        <script>
+            //将Config渲染到全局
+            window.Config = require.config;
+        </script>
+        {block name="css"}{/block}
+        <style>
+            .mdi-2x {
+                font-size: 2em;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container-fluid p-t-15">
+            <!-- 站点选择 -->
+            <div class="row">
+              {volist name="list" id="site"}
+              <div class="col-md-4">
+                  <div class="card">
+                          <header class="card-header">
+                              <div class="card-title">{$site.bt_name}</div>
+                          </header>
+                          <div class="card-body">
+                              <div class="row">
+                                  <div class="col-lg-6 col-md-12">
+                                      <!-- START widget-->
+                                      <div class="card widget">
+                                        <div class="card-body bg-purple">
+                                          <div class="row row-table row-flush">
+                                            <div class="col-lg-12 col-md-12 col-12 col-sm-12">
+                                              <span>{:__('Host status')}</span>
+                                              <h5 class="m0">
+                                                <div class="point point-success"></div>
+                                                <span class="text-warning">{:__($site.statusStr)}</span>
+                                              </h5>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  <div class="col-lg-6 col-md-12">
+                                    <!-- START widget-->
+                                    <div class="card widget">
+                                      <div class="card-body bg-info">
+                                        <div class="row row-table row-flush">
+                                          <div class="col-lg-12 col-md-12 col-12 col-sm-12">
+                                            <span>{:__('Web size')}</span>
+                                            <h5 class="m0">
+                                              {$site.site_size}M / <small
+                                                class="text-warning">{$site.site_max!='0.00'?$site.site_max.'M':__('∞')}</small></h5>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      
+                                    </div>
+                                  </div>
+                                  <div class="col-lg-6 col-md-12">
+                                    <!-- START widget-->
+                                    <div class="card widget">
+                                      <div class="card-body bg-success">
+                                        <div class="row row-table row-flush">
+                                          <div class="col-lg-12 col-md-12 col-12 col-sm-12">
+                                            <span>{:__('Sql size')}</span>
+                                            <h5 class="m0">
+                                              {$site.sql_size}M
+                                              / <small class="text-warning">{$site.sql_max!='0.00'?$site.sql_max.'M':__('∞')}</small>
+                                            </h5>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      
+                                    </div>
+                                  </div>
+                                  <div class="col-lg-6 col-md-12">
+                                    <!-- START widget-->
+                                    <div class="card widget">
+                                      <div class="card-body bg-brown">
+                                        <div class="row row-table row-flush">
+                                          <div class="col-lg-12 col-md-12 col-12 col-sm-12">
+                                            <span>{:__('Flow size')}</span>
+                                            <h5 class="m0">
+                                              {$site.flow_size?$site.flow_size:'0'}M
+                                              / <small class="text-warning">{$site.flow_max!='0.00'?$site.flow_max.'M':__('∞')}</small>
+                                            </h4>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      
+                                    </div>
+                                  </div>
+                              </div>
+                              <div class="notice">{$site.notice}</div>
+                              <p><a href="?host_id={$site.id}"><small class="btn btn-warning btn-block">{:__('Enter')}</small></a></p>
+                          </div>
+                  </div>
+              </div>
+              {/volist}
+            </div>
+        </div>
+        <script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/jquery.min.js?v={$static_version}"></script>
+        <script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/popper.min.js?v={$static_version}"></script>
+        <script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/bootstrap.min.js?v={$static_version}"></script>
+        <script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/main.min.js?v={$static_version}"></script>
+        <script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/lyear-loading.js?v={$static_version}"></script>
+        <script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/jquery-confirm/jquery-confirm.min.js?v={$static_version}"></script>
+        <script src="__CDN____STATIC__/Light-Year/js/script.js?v={$static_version}"></script>
+        
+        {block name="script"}{/block}
+    </body>
+</html>

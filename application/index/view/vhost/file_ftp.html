@@ -1,0 +1,958 @@
+{extend name="common/base" /}
+{block name="css"}
+<link rel="stylesheet" href="__CDN____STATIC__/css/host_file.css?v={$static_version}">
+{/block}
+{block name="content"}
+{include file='common/file_head'/}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card" id="loading_box">
+            <div class="card-body example-box">
+                <button style="float: right;" class="btn btn-sm btn-success" onclick="location.reload()" title="{:__('Refresh')}"><i class="mdi mdi-restore"></i></button>
+                <button style="float: right;" class="btn btn-sm btn-dark" onclick="newdir()">{:__('Create dir')}</button>
+                <button style="float: right;" class="btn btn-sm btn-purple" onclick="newfile()">{:__('Create file')}</button>
+                <!-- <button style="float: right;" class="btn btn-sm btn-info" onclick="UploadFiles()">{:__('Upload')}</button> -->
+                <div class="batchAction" style="display: none;">
+                    <button style="float: right;" class="btn btn-sm btn-info" onclick="batchAction('CutFiles')">{:__('Copy')}</button>
+                    <button style="float: right;" class="btn btn-sm btn-info" onclick="batchAction('CutFile')">{:__('Cut')}</button>
+                    <button style="float: right;" class="btn btn-sm btn-info" onclick="batchAction('del')">{:__('Delete')}</button>
+                </div>
+                
+                <form id="btyUploadFile">
+                    <div class="upload-drag" id="upload-drag" onclick="zunfile.click()" title="{:__('Upload file')}" style="float: right;">
+                        <input type="hidden" name="type" value="uploadfile">
+                        <p id="stat" class="btn btn-sm btn-info">{:__('Upload file')}</p>
+                        <input type="file" id="zunfile" name="zunfile" onchange="scs();" style="display:none" accept="*/*">
+                    </div>
+                </form>
+                <div style="float: left;padding-left: 10px;padding-top:5px;">
+                    {:__('Current directory')}：
+                    <a href="?path=/" class="loading_dir">
+                        {:__('Root')}
+                    </a>
+                    {volist name="paths" id="path"}
+                    / <a href="?path={$path.url}" class="loading_dir">{$path.path}</a>
+                    {/volist}
+                    {if cookie('vhost_cutcopy_cutFileName')}
+                    <a href="javascript:PasteFile('{$viewpath}');">{:__('Paste')}</a>
+                    {elseif cookie('vhost_cutcopy_copyFileName')}
+                    <a href="javascript:PasteFile('{$viewpath}',1);">{:__('Paste')}</a>
+                    {elseif cookie('vhost_cutcopy_cutFileNames')}
+                    <a href="javascript:PasteFiles('{$viewpath}');">{:__('Paste')}</a>
+                    {elseif cookie('vhost_cutcopy_copyFileNames')}
+                    <a href="javascript:PasteFiles('{$viewpath}',1);">{:__('Paste')}</a>
+                    {/if}
+                </div>
+
+                <div class="table-responsive" style="clear: both;">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <td>
+                            <label class="lyear-checkbox checkbox-primary">
+                                <input type="checkbox" id="check-all"><span></span>
+                            </label>
+                        </td>
+                        <td>
+                            {:__('File name')}
+                        </td>
+                        <td>
+                            {:__('File size')}
+                        </td>
+                        <td>
+                            {:__('Change the time')}
+                        </td>
+                        <td>
+                            {:__('Jurisdiction')}
+                        </td>
+                        <td>
+                            {:__('Owner')}
+                        </td>
+                        <td>
+                            {:__('Operation')}
+                        </td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {volist name="list.dirs" id="dirs"}
+                    <tr>
+                        <td>
+                            <label class="lyear-checkbox checkbox-primary">
+                                <input type="checkbox" name="ids[]" value="{$key}"><span></span>
+                            </label>
+                        </td>
+                        <td><span class="mdi mdi-folder text-warning mdi-24px text-middle loading_dir"></span> <a href="?path={$viewpath}{$dirs.name}">{$dirs.name}</a></td>
+                        <td><a href="javascript:;" onclick="getSize('{$dirs.name}',this)">{:__('Calculated size')}</a></td>
+                        <td>{:monthTosmonth($dirs.month)}-{$dirs.day} {$dirs.time}</td>
+                        <td>{$dirs.chmod}</td>
+                        <td>{$dirs.group}</td>
+                        <td>
+                            <span>
+                            	
+                                <a class="btlink" href="javascript:CutFile('{$viewpath}{$key}','{$key}');">
+                                    {:__('Cut')}
+                                </a>
+                                |
+                                <a class="btlink" href="javascript:MvFile('{$key}');">
+                                    {:__('Rename')}
+                                </a>
+                                |
+                                <a class="btlink" href="javascript:;" onclick="DeleteDir('{$viewpath}{$key}')">
+                                    {:__('Delete')}
+                                </a>
+                            </span>
+                        </td>
+                    </tr>
+                    {/volist}
+                    {volist name="list.files" id="files"}
+                    {if $files.name!='.user.ini'}
+                    <tr>
+                        <td>
+                            <label class="lyear-checkbox checkbox-primary">
+                                <input type="checkbox" name="ids[]" value="{$key}"><span></span>
+                            </label>
+                        </td>
+                        <td>
+                            <?php
+                            switch (fileExtension($files['name'])) {
+                                case 'bmp':
+                                case 'gif':
+                                case 'png':
+                                case 'jpeg':
+                                case 'jpg':
+                                case 'tiff':
+                                case 'ico':
+                                ?>
+                                <span class="mdi mdi-file-image text-primary mdi-24px text-middle"></span>
+                                <?php 
+                                break;
+                                case 'zip':
+                                case 'rar':
+                                case 'gz':
+                                case '7z':
+                                case 'rar':
+                                case 'gz':
+                                ?>
+                                <span class="mdi mdi-zip-box text-warning mdi-24px text-middle"></span>
+                                <?php 
+                                break;
+                                case 'sql':
+                                ?>
+                                <span class="mdi mdi-database text-danger mdi-24px text-middle"></span>
+                                <?php 
+                                break;
+                                case 'txt':
+                                ?>
+                                <span class="mdi mdi-file-document text-gray mdi-24px text-middle"></span>
+                                <?php 
+                                break;
+                                case 'php':
+                                ?>
+                                <span class="mdi mdi-file-code text-cyan mdi-24px text-middle"></span>
+                                <?php 
+                                break;
+                                case 'html':
+                                ?>
+                                <span class="mdi mdi-language-html5 text-info mdi-24px text-middle"></span>
+                                <?php 
+                                break;
+                            default:
+                                ?>
+                                <span class="mdi mdi-file text-secondary mdi-24px text-middle"></span>
+                                <?php 
+                                    break;
+                            }
+                            ?>
+                            {$files.name}
+                        </td>
+                        <td>{:formatBytes($files.size)}</td>
+                        <td>{:monthTosmonth($files.month)}-{$files.day} {notempty name="dirs.time"} {$dirs.time}{/notempty}</td>
+                        <td>{$files.chmod}</td>
+                        <td>{$files.group}</td>
+                        <td>
+                            <span id="operation">
+                                <a class="btlink" href="javascript:CutFile('{$viewpath}{$key}','{$key}',1);">
+                                    {:__("Copy")}
+                                </a>
+                                |
+                                <a class="btlink" href="javascript:CutFile('{$viewpath}{$key}','{$key}');">
+                                    {:__("Cut")}
+                                </a>
+                                |
+                                <a class="btlink" href="javascript:MvFile('{$key}');">
+                                    {:__("Rename")}
+                                </a>
+                                <?php 
+                                switch (fileExtension($files['name'])) {
+                                case 'bmp':
+                                case 'gif':
+                                case 'png':
+                                case 'jpeg':
+                                case 'jpg':
+                                case 'tiff':
+                                case 'ico':
+                                
+                                break;
+                                case 'zip':
+                                case 'rar':
+                                case 'gz':
+                                case '7z':
+                                case 'rar':
+                                case 'gz':
+                                break;
+
+                                case 'sql':
+                                default:
+                                ?>
+                                |
+                                <a class="btlink" href="javascript:;" onclick="editFile('{$viewpath}{$key}','{:fileExtension($files[\'name\'])}')">
+                                    {:__('Edit')}
+                                </a>
+                                <?php
+                                break;
+                            }?>
+                                |
+                                <a class="btlink" href="{:url('index/vhost/file_ftp')}?go=1&downfile={$viewpath}{$key}" target="_blank">
+                                    {:__('Download')}
+                                </a>
+                                |
+                                <a class="btlink" href="javascript:;" onclick="DeleteFile('{$viewpath}{$key}')">
+                                    {:__('Delete')}
+                                </a>
+                            </span>
+                        </td>
+                    </tr>
+                    {/if}
+                    {/volist}
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{/block}
+{block name="script"}
+<script src="__CDN__/assets/libs/layer/layer.js?v={$static_version}"></script>
+<script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/bootstrap-notify.min.js?v={$static_version}"></script>
+<script type="text/javascript">
+// 弹窗自适应宽高
+var area = [$(window).width() > 800 ? '35%' : '90%', $(window).height() > 600 ? '' : ''];
+    $(function () {
+        $('.loading_dir,.loading_box').on('click', function () {
+            var l = $('body').lyearloading({
+                opacity: 0.2,
+                spinnerSize: 'lg',
+                spinnerText: '{:__("Loading")}',
+                textColorClass: 'text-info',
+                spinnerColorClass: 'text-info'
+            });
+        });
+    });
+    function DeleteFile(file){
+        if(!file){
+            layer.msg('{:__("Please select file")}');
+            return false;
+        }
+        layer.confirm('{:__("Confirm delete?")}', {
+              btn: ['{:__("Confirm")}','{:__("Cancel")}']
+            }, function(){
+                var l = $('#loading_box').lyearloading({
+                    opacity: 0.125,
+                    spinnerSize: 'lg'
+                });
+              $.post('', {type:'deletefile',file:file}, function(data, textStatus, xhr) {
+                    EchoMsg(data.msg);
+                })
+                .fail(function () {
+                    EchoMsg('{:__("Request error, please try again later")}');
+                })
+                .always(function () {
+                    l.destroy();
+                });
+            }, function(index){
+              layer.close(index);
+        });
+        
+    }
+    function sqlInput(file){
+        if(!file){
+            layer.msg('{:__("Please select file")}');
+            return false;
+        }
+        layer.confirm('{:__("Are you sure you want to import the database? Importing will overwrite the previous data~!")}', {
+              btn: ['{:__("Confirm")}','{:__("Cancel")}']
+            }, function(){
+                var l = $('#loading_box').lyearloading({
+                    opacity: 0.125,
+                    spinnerSize: 'lg'
+                });
+                $.post('', {type:'sqlinput',file:file}, function(data, textStatus, xhr) {
+                    EchoMsg(data.msg);
+                })
+                .fail(function () {
+                    EchoMsg('{:__("Request error, please try again later")}');
+                })
+                .always(function () {
+                    l.destroy();
+                });
+            }, function(index){
+              layer.close(index);
+        });
+        
+    }
+    function DeleteDir(file){
+        if(!file){
+            layer.msg('{:__("Please select dir")}');
+            return false;
+        }
+        layer.confirm('{:__("Confirm delete?")}', {
+              btn: ['{:__("Confirm")}','{:__("Cancel")}']
+            }, function(){
+                var l = $('#loading_box').lyearloading({
+                    opacity: 0.125,
+                    spinnerSize: 'lg'
+                });
+                $.post('', {type:'deletedir',file:file}, function(data, textStatus, xhr) {
+                    EchoMsg(data.msg);
+                })
+                .fail(function () {
+                    EchoMsg('{:__("Request error, please try again later")}');
+                })
+                .always(function () {
+                    l.destroy();
+                });
+            }, function(index){
+              layer.close(index);
+        });
+        
+    }
+
+    function isZip(fileName){
+        if(!fileName){
+            return false;
+        }
+        var ext = fileName.split('.');
+        var extName = ext[ext.length-1].toLowerCase();
+        if( extName == 'zip' || extName == 'rar') return 0;
+        if( extName == 'gz' || extName == 'tgz') return 1;
+        return -1;
+    }
+    
+    function MvFile(file){
+        if(!file){
+            layer.msg('{:__("Please select file")}');
+            return false;
+        }
+        path = '{$viewpath}';
+          layer.prompt({title: '{:__("Rename")}', formType: 3,value:file}, function(text, index){
+            layer.close(index);
+            var l = $('#loading_box').lyearloading({
+                opacity: 0.125,
+                spinnerSize: 'lg'
+            });
+            $.post('', {type:'MvFile',path: path,oldName:file,newName:text}, function(data, textStatus, xhr) {
+                EchoMsg(data.msg);
+            })
+            .fail(function () {
+                EchoMsg('{:__("Request error, please try again later")}');
+            })
+            .always(function () {
+                l.destroy();
+            });
+          });
+    }
+    function getSize(path,obj){
+        if(!path){
+            layer.msg('{:__("Please select file")}');
+            return false;
+        }
+        var l = $('#loading_box').lyearloading({
+            opacity: 0.125,
+            spinnerSize: 'lg'
+        });
+        $.post('', {path:path,type:'getsize'}, function(data, textStatus, xhr) {
+            console.log(obj);
+            obj.innerHTML = data.msg;
+        })
+        .fail(function () {
+            EchoMsg('{:__("Request error, please try again later")}');
+        })
+        .always(function () {
+            l.destroy();
+        });
+
+    }
+    function CutFile(file,name='',copy=''){
+        if(!file){
+            layer.msg('{:__("Please select file")}');
+            return false;
+        }
+        var l = $('#loading_box').lyearloading({
+            opacity: 0.125,
+            spinnerSize: 'lg'
+        });
+        $.post('', {file: file,type:'cut',name:name,copy:copy}, function(data, textStatus, xhr) {
+            layer.msg(data.msg);
+        })
+        .fail(function () {
+            EchoMsg('{:__("Request error, please try again later")}');
+        })
+        .always(function () {
+            l.destroy();
+        });
+    }
+    function PasteFile(path,copy){
+        if(!path){
+            layer.msg('{:__("Please select paste file")}');
+            return false;
+        }
+        layer.load(2);
+        $.post('', {type: 'paste',path:path,copy:copy}, function(data, textStatus, xhr) {
+        	layer.closeAll('loading');
+            layer.msg(data.msg);
+        });
+    }
+    function PasteFiles(path,copy){
+        if(!path){
+            layer.msg('{:__("Please select paste file")}');
+            return false;
+        }
+        layer.load(2);
+        $.post('', {type: 'pastes',path:path,copy:copy}, function(data, textStatus, xhr) {
+        	layer.closeAll('loading');
+            layer.msg(data.msg);
+        });
+    }
+
+        /* ! 宝塔文件上传组件 License  https://www.bt.cn  By 黄文良 <287962566@qq.com> */
+        var bt_upload_file = {
+            f: null,
+            f_total: 0,
+            f_path: null,
+            split_size: 1024 * 1024 * 2*100,
+            _files: [],
+            _error: 0,
+            _start_time: 0,
+            _t_start_time: 0,
+            collback_to: null,
+            upload_url: '?type=uploadfile&path={:htmlspecialchars($viewpath)}',
+            _loadT: null,
+            open: function (path, is_exts, ps, collback_to) {
+                bt_upload_file.f_path = path;
+                user_agent = navigator.userAgent.toLowerCase();
+                var btn_dir = '';
+                var accept_ext = '';
+                if (!is_exts) {
+                    if (user_agent.indexOf('chrome') !== -1 || user_agent.indexOf('firefox') !== -1) {
+                        btn_dir = '<input type="file" class="btn btn-sm btn-brown" id="dir_input" onchange="bt_upload_file.list(this.files)" style="display:none;"  multiple="true" autocomplete="off" multiple webkitdirectory /><button type="button"  id="opt" onclick="$(\'#dir_input\').click()" autocomplete="off" title="支持的浏览器: Chrome、Firefox、Edge、有极速模式的国产浏览器" class="btn btn-sm btn-info">选择目录</button>'
+                    }
+                } else {
+                    accept_ext = 'accept="' + is_exts + '"'
+                }
+                var other_ps = '';
+                if (ps) {
+                    other_ps = ' --- <span style="color:red;">' + ps + '</span>'
+                } else {
+                    other_ps = ' --- {:__("Support breakpoint resume")}'
+                }
+                if (collback_to) {
+                    bt_upload_file.collback_to = collback_to
+                }
+                bt_upload_file._loadT = layer.open({
+                    type: 1,
+                    title: '{:__("Upload files to")}[{$viewpath}]' + other_ps,
+                    area: [$(window).width() > 800 ? '35%' : '90%', $(window).height() > 600 ? '90%' : '90%'],
+                    // shadeClose: false,
+                    shift: 5,
+                    closeBtn: 1,
+                    maxmin: true,
+                    content: '<div class="fileUploadDiv"><div class="row example-box"><div class="col-lg-6"><input type="file" id="file_input" onchange="bt_upload_file.list(this.files)"  multiple="true" autocomplete="off" ' + accept_ext + '  class="btn btn-sm btn-info"/><button type="button"  id="opt" onclick="$(\'#file_input\').click()" autocomplete="off" class="btn btn-sm btn-primary" >{:__("Select file")}</button>' + btn_dir + '<span><button type="button" id="up" autocomplete="off" onclick="bt_upload_file.start(0)" class="btn btn-sm btn-success">开始上传</button><!--<button type="button" id="filesClose" autocomplete="off" onClick="layer.close(bt_upload_file._loadT)" class="btn btn-sm btn-danger">{:__("Close")}</button>--></span></div><div class="col-md-6"><span id="totalProgress"></span></div></div></div><div class="table-responsive"><table  class="table"><thead><tr><th>{:__("File name")}</th><th>大小</th><th>{:__("Status")}</th></tr></thead><tbody id="up_box"></tbody></table></div>'
+                })
+                // 强制全屏
+                layer.full(bt_upload_file._loadT);
+            },
+            list: function (_files) {
+                bt_upload_file._files = _files;
+                var up_box = $("#up_box");
+                $("#up_box").html('');
+                var loadT = layer.msg('{:__("Loading file list...")}', {
+                    time: 0,
+                    icon: 16,
+                    shade: 0.3
+                });
+                for (var i = 0; i < _files.length; i += 1) {
+                    var f_name = _files[i].name;
+                    if (_files[i].webkitRelativePath) {
+                        f_name = _files[i].webkitRelativePath
+                    }
+                    up_box.append('<tr class="offset-' + i + '"><td class="filename" title="{:__("Upload to")}: ' + bt_upload_file.f_path + '/' + f_name + '">' + f_name + '</td><td class="filesize">' + bt_upload_file.to_size(_files[i].size) + '</td><td class="emmmm">{:__("Waiting for upload")}</td></tr>')
+                }
+                layer.close(loadT)
+            },
+            to_size: function (a) {
+                var d = [" B", " KB", " MB", " GB", " TB", " PB"];
+                var e = 1024;
+                for (var b = 0; b < d.length; b += 1) {
+                    if (a < e) {
+                        return (b === 0 ? a : a.toFixed(2)) + d[b]
+                    }
+                    a /= e
+                }
+            },
+            start: function (i) {
+                var len = bt_upload_file._files.length;
+                if (len === 0) {
+                    layer.msg('{:__("Please select file")}!', {
+                        icon: 2
+                    });
+                    return false
+                }
+                if (i === 0) {
+                    bt_upload_file._t_start_time = new Date()
+                }
+                $("#filesClose,#up,#opt").attr("disabled", "disabled");
+                var total_time = bt_upload_file.diff_time(bt_upload_file._t_start_time, new Date());
+                $("#totalProgress").html('<p>{:__("Uploaded")}(' + i + '/' + len + '),' + total_time + '</p> <div class="progress"><div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="' + i + '" aria-valuemin="0" aria-valuemax="' + len + '" style="width: ' + GetPercent(i,len) + '"><span class="sr-only">' + i + '% Complete</span></div></div>');
+                if (len <= i) {
+                    $("#totalProgress").html('<p>{:__("Upload success")}(' + i + '/' + len + '), ' + total_time + '</p> <div class="progress"><div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="' + i + '" aria-valuemin="0" aria-valuemax="' + len + '" style="width: ' + GetPercent(i,len) + '"><span class="sr-only">' + i + '% Complete</span></div></div>');
+                    bt_upload_file._files = [];
+                    $("#filesClose,#up,#opt").removeAttr("disabled");
+                    if (bt_upload_file.collback_to) {
+                        bt_upload_file.collback_to(bt_upload_file.f_path)
+                    }
+                    return false
+                }
+                if (i > 10) {
+                    $("#up_box").scrollTop(35 * (i - 10) + 50)
+                }
+                bt_upload_file._start_time = new Date();
+                bt_upload_file._error = 0;
+                bt_upload_file.f = bt_upload_file._files[i];
+                bt_upload_file.f_total = Math.ceil(bt_upload_file.f.size / bt_upload_file.split_size);
+                bt_upload_file.upload(0, i)
+            },
+            upload: function (start, i) {
+                var end = Math.min(bt_upload_file.f.size, start + bt_upload_file.split_size);
+                var len = bt_upload_file._files.length;
+                var f_path = bt_upload_file.f_path;
+                if (bt_upload_file.f.webkitRelativePath) {
+                    f_path = bt_upload_file.f_path + '/' + bt_upload_file.f.webkitRelativePath.replace('/' + bt_upload_file.f.name, '')
+                }
+                var form = new FormData();
+                form.append("f_path", '{$viewpath}');
+                form.append("f_name", bt_upload_file.f.name);
+                form.append("f_size", bt_upload_file.f.size);
+                form.append("f_start", start);
+                form.append("blob", bt_upload_file.f.slice(start, end));
+                form.append("m", "coll_upload");
+                form.append("f", "upload");
+                form.append("type", "uploadfile");
+                $.ajax({
+                    url: bt_upload_file.upload_url,
+                    type: "POST",
+                    data: form,
+                    async: true,
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        if (typeof (data) === "number") {
+                            var progress = parseInt(data / bt_upload_file.f.size * 100);
+                            var total_time = bt_upload_file.diff_time(bt_upload_file._t_start_time, new Date());
+                            $("#totalProgress").html('<p>{:__("Uploaded")}(' + i + '/' + len + '),' + total_time + '</p> <div class="progress"><div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="' + i + '" aria-valuemin="0" aria-valuemax="' + len + '" style="width: ' + GetPercent(i,len) + '"><span class="sr-only">' + i + '% Complete</span></div></div>');
+                            $("#up_box tr .emmmm")[i].outerHTML = '<td class="emmmm" style="color:green;">{:__("Upload progress")}:' + progress + '%</td>';
+                            $("#up_box tr .filesize")[i].outerHTML = '<td class="filesize">' + bt_upload_file.to_size(data) + '/' + bt_upload_file.to_size(bt_upload_file.f.size) + '</td>';
+                            $("#up_box tr .emmmm")[i].focus();
+                            bt_upload_file.upload(data, i)
+                        } else {
+                            if (data.code==1) {
+                                var f_time = bt_upload_file.diff_time(bt_upload_file._start_time, new Date());
+                                $("#up_box tr .emmmm")[i].outerHTML = '<td class="emmmm" style="color:green;">{:__("Completed")}(' + f_time + ')</td>';
+                                $("#up_box tr .filesize")[i].outerHTML = '<td class="filesize">' + bt_upload_file.to_size(bt_upload_file.f.size) + '/' + bt_upload_file.to_size(bt_upload_file.f.size) + '</td>'
+                            } else {
+                                $("#up_box tr .emmmm")[i].outerHTML = '<td class="emmmm" style="color:red;">' + data.msg + '</td>'
+                            }
+                            bt_upload_file.start(i + 1)
+                        }
+                    },
+                    error: function (e) {
+                        if (bt_upload_file._error > 5) {
+                            $("#up_box li .emmmm")[i].outerHTML = '<td class="emmmm" style="color:red;">{:__("Upload failed")}</td>';
+                            bt_upload_file.start(i + 1);
+                            return
+                        }
+                        bt_upload_file._error += 1;
+                        bt_upload_file.upload(start, i)
+                    }
+                })
+            },
+            diff_time: function (start_date, end_date) {
+                var diff = end_date.getTime() - start_date.getTime();
+                var minutes = Math.floor(diff / (60 * 1000));
+                var leave3 = diff % (60 * 1000);
+                var seconds = (leave3 / 1000).toFixed(2);
+                var result = seconds + '秒';
+                if (minutes > 0) {
+                    result = minutes + "分" + result
+                }
+                return result
+            }
+        };
+        
+        
+        //普通上传
+        function scs(){
+                var file = $('#zunfile').get(0).files[0]; //获取上传的文件  
+                var fileSize = file.size;           //获取上传的文件大小  
+                var maxSize = "{$php_upload_max?$php_upload_max:'0'}"; //最大上传(字节)
+                if(parseInt(fileSize) >= parseInt(maxSize)){  
+                  max = bytes2mb({$php_upload_max});
+                  parent.alert('上传的文件不能超过'+max+'M');  
+                  return false;  
+              }else{
+                  layer.msg('{:__("Uploading")}');
+                  
+                  var data = new FormData($('#btyUploadFile')[0]);
+                  $.ajax({
+                    url: '?type=uploadfile&path={:htmlspecialchars($viewpath)}',   
+                    type: 'POST',    
+                    data: data,    
+                    dataType: 'JSON', 
+                    processData: false,    
+                    contentType: false,
+                    xhr: function(){
+                      var xhr = $.ajaxSettings.xhr();
+                      if(onprogress && xhr.upload) {
+                       xhr.upload.addEventListener("progress" , onprogress, false);
+                       return xhr;
+                   }
+               }
+           }).done(function(ret){
+            
+            EchoMsg(ret.msg);
+        });
+           return false;  
+        }    
+    }
+    function onprogress(evt){
+        var loaded = evt.loaded;     //已经上传大小情况 
+        var tot = evt.total;      //附件总大小 
+        var per = Math.floor(100*loaded/tot);  //已经上传的百分比 
+        layer.msg(per+'%');
+
+    }
+    //文件编辑
+    function editFile(file,fileType){
+        if (!file) {
+            $.notify({
+                message: '{:__("Please select file")}',
+            }, {
+                type: 'warning'
+            });
+            return false;
+        }
+        randMath = randomNum(1111,9999);
+        layer.msg('{:__("Loading")}');
+        $.post('', {file:file,type:'getfile'}, function(data, textStatus, xhr) {
+            if(data.code==1){
+                var u = ["utf-8", "GBK", "GB2312", "BIG5"];
+                var theme = ['default','monokai','3024-day','3024-night','abcdef','ambiance','base16-dark','bespin','base16-light','blackboard','cobalt','colorforth','dracula','duotone-dark','duotone-light','eclipse','elegant','erlang-dark','hopscotch','icecoder','isotope','lesser-dark','liquibyte','material','mbo','mdn-like','midnight','monokai','neat','neo','night','panda-syntax','paraiso-dark','paraiso-light','pastel-on-dark','railscasts','rubyblue','seti','solarized','the-matrix','tomorrow-night-bright','tomorrow-night-eighties','ttcn','twilight','vibrant-ink','xq-dark','xq-light','yeti','zenburn','darcula'];
+                var n = "";
+                var m = "";
+                var o = "";
+                var t = "";
+                var th = "";
+                var is_theme = localStorage.getItem('theme')?localStorage.getItem('theme'):'default';
+                for(var p = 0; p < u.length; p++) {
+                    m = data.encoding == u[p] ? "selected" : "";
+                    n += '<option value="' + u[p] + '" ' + m + ">" + u[p] + "</option>"
+                }
+                for (var p1 = 0; p1 < theme.length; p1++) {
+                    m = is_theme == theme[p1] ? "selected" : "";
+                    th += '<option value="' + theme[p1] + '" ' + m + ">" + theme[p1] + "</option>"
+                }
+                content = '<form class="bt-form pd20 pb70" id="codemirror'+randMath+'"><div class="container-fluid"><p style="color:red;margin-bottom:10px;width: 70%;">{:__("Tip: Ctrl+F searches for keywords, Ctrl+G finds the next one, Ctrl+S saves, Ctrl+Shift+R finds and replaces, Ctrl code hint!")}<select class="bt-input-text hidden" name="encoding" style="width: 74px;position: absolute;right: 19px;height: 22px;z-index: 9999;border-radius: 0;">' + n + '</select><span style="font-size:xx-small;color:#8d6658;padding:0 5px;">{:__("Theme")}:</span><select class="bt-input-text" id="select_theme" name="theme" style="width: 74px;position: absolute;height: 22px;z-index: 9999;border-radius: 0;">'+th+'</select></p><textarea id="textBody'+randMath+'" style="width: 100%; margin: 0px auto; line-height: 1.8; position: relative; top: 10px; height: 126.8px; display: none;" value=""/></div></form>';
+                //content = '<pre style="width:100%;height:100%;" file="'+file+'"><code  class="php">'+data.data+'</code></pre>';
+                var index = layer.open({
+                  type: 1
+                  ,title: '{:__("Edit")}'+file
+                  ,shade: 0
+                  ,area: ["90%", "90%"]
+                  ,offset: 'auto'
+                  ,maxmin: true
+                  ,content: content
+                  ,btn: ['{:__("Save")}', '{:__("Close")}']
+                  ,yes: function(){
+                    $("#textBody"+randMath).text(t.getValue());
+                    content = t.getValue();
+                    encoding = $('#codemirror'+randMath+' select[name=encoding]').val();
+                    layer.load();
+                    saveFile(file,content,encoding);
+                }
+                ,btn2: function(){
+                }
+                ,zIndex: layer.zIndex //重点1
+                // ,success: function(layero){
+                //     layer.setTop(layero); //重点2
+                // }
+                });
+                //layer.full(index);
+
+
+                switch(fileType)
+                {
+                    case "html":
+                    case "htm":
+                    var mixedMode = {name: "htmlmixed",scriptTypes: [{matches: /\/x-handlebars-template|\/x-mustache/i,mode: null},{matches: /(text|application)\/(x-)?vb(a|script)/i,mode: "vbscript"}]};
+                    doctype = mixedMode;
+                    break;
+                    case "js":
+                    doctype = "text/javascript";
+                    break;
+                    case "json":
+                    doctype = "application/ld+json";
+                    break;
+                    case "css":
+                    doctype = "text/css";
+                    break;
+                    case "php":
+                    doctype = "application/x-httpd-php";
+                    break;
+                    case "tpl":
+                    doctype = "application/x-httpd-php";
+                    break;
+                    case "xml":
+                    doctype = "application/xml";
+                    break;
+                    case "sql":
+                    doctype = "text/x-sql";
+                    break;
+                    case "conf":
+                    doctype = "text/x-nginx-conf";
+                    break;
+                    default:
+                    var mixedMode = {name: "htmlmixed",scriptTypes: [{matches: /\/x-handlebars-template|\/x-mustache/i,mode: null}, {matches: /(text|application)\/(x-)?vb(a|script)/i,mode: "vbscript"}]};
+                    doctype = mixedMode;
+                    break;
+                }
+                //$("#textBody").text(data.data);
+                var q = $(window).height() * 0.9;
+                $("#textBody"+randMath).height(q - 160);
+                var t = CodeMirror.fromTextArea(document.getElementById("textBody"+randMath), {
+                    extraKeys: {
+                        "Ctrl-F": "findPersistent",
+                        "Ctrl-H": "replaceAll",
+                        "Ctrl": "autocomplete",
+                        "Ctrl-S": function() {
+                            $("#textBody"+randMath).text(t.getValue());
+                            content = t.getValue();
+                            encoding = $('#codemirror'+randMath+' select[name=encoding]').val();
+                            layer.load();
+                            saveFile(file,content,encoding);
+                        }
+                    },
+                    lineNumbers: true,
+                    mode: doctype,
+                    styleActiveLine: true,
+                    matchBrackets: true,
+                    indentUnit: 4,
+                    indentWithTabs: true,
+                    matchtags: true,
+                    autoMatchParens: true,
+                    hintOptions: {
+                        completeSingle: false
+                    }
+                    //readOnly:true
+                });
+                $(function(){
+                    // showCodeHint(t);
+                    $('#select_theme').change(function(){
+                        localStorage.setItem('theme',$(this).val());
+                        t.setOption("theme", $(this).val());
+                    })
+                });
+                //console.log(t.getValue());
+                
+                t.setSize("auto", q - 150);
+                setTimeout(function(){
+                    $("#textBody"+randMath).text(data.data);
+                    t.setValue(data.data)
+                },500);
+                t.setOption("theme", is_theme);
+                t.focus();
+            }else{
+                EchoMsg(data.msg);
+            }
+            
+        });
+    }
+    // 保存文件
+    function saveFile(file,content,encoding){
+        if(!file){
+            layer.msg('{:__("Please select file")}');
+            return false;
+        }
+        var lod = layer.load(2);
+        layer.style(lod, {
+            zIndex: '9999999999',
+        });
+        $.post('', {file:file,type:'savefile',content:content,encoding:encoding}, function(data, textStatus, xhr) {
+            
+            layer.closeAll('loading');
+            layer.msg(data.msg, {time: 2000, icon:6});
+        });
+    }
+    
+    //生成从minNum到maxNum的随机数
+    function randomNum(minNum,maxNum){ 
+        switch(arguments.length){ 
+            case 1: 
+            return parseInt(Math.random()*minNum+10); 
+            break; 
+            case 2: 
+            return parseInt(Math.random()*(maxNum-minNum+1)+minNum,10);
+            break; 
+            default: 
+            return 0; 
+            break; 
+        } 
+    }
+    function bytes2mb(bytes)
+    {
+        return Math.round(bytes / 1024 / 1024, 2);
+    }
+    //新建文件夹
+    function newdir(){
+        path = '{$viewpath}';
+        layer.prompt({title:  '{:__("Create dir")}', formType: 3}, function(text, index){
+            layer.close(index);
+            var l = $('#loading_box').lyearloading({
+                opacity: 0.125,
+                spinnerSize: 'lg'
+            });
+            $.post('', {type:'newdir',path: path,newdir:text}, function(data, textStatus, xhr) {
+                
+                EchoMsg(data.msg);
+            })
+            .fail(function () {
+                EchoMsg('{:__("Request error, please try again later")}');
+            })
+            .always(function () {
+                l.destroy();
+            });
+        });
+    }
+    //新建文件
+    function newfile(){
+        path = '{$viewpath}';
+        layer.prompt({title: '{:__("Create file")}', formType: 3}, function(text, index){
+            layer.close(index);
+            var l = $('#loading_box').lyearloading({
+                opacity: 0.125,
+                spinnerSize: 'lg'
+            });
+            $.post('', {type:'newfile',path: path,newfile:text}, function(data, textStatus, xhr) {
+                EchoMsg(data.msg);
+            })
+            .fail(function () {
+                EchoMsg('{:__("Request error, please try again later")}');
+            })
+            .always(function () {
+                l.destroy();
+            });
+        });
+    }
+    //分片上传要用到的js
+    function UploadFiles() {
+
+        var path = '{$viewpath}';
+        bt_upload_file.open(path, null, null, function (path) {
+        });
+        return;
+    }
+    // 百分比计算
+    function GetPercent(num, total) {
+        num = parseFloat(num);
+        total = parseFloat(total);
+        if (isNaN(num) || isNaN(total)) {
+            return "-";
+        }
+        return total <= 0 ? "0%" : (Math.round(num / total * 10000) / 100.00)+"%";
+    }
+    $("#check-all").change(function () {
+        if($("input[type='checkbox']").prop('checked')){
+            $('.batchAction').show();
+        }else{
+            $('.batchAction').hide();
+        }
+    });
+    var chk = $('input[type="checkbox"]');
+    chk.click(function(){
+        var len = $('input[type="checkbox"]').filter(":checked").length;
+        if(len>=2){
+            $('.batchAction').show();
+        }else{
+            $('.batchAction').hide();
+        }
+    });
+    // 批量操作前
+    function batchAction(batchType){
+        path = '{$viewpath}';
+        data = batch();
+        
+        var msg = '{:__("Title")}';
+        switch(batchType){
+            case 'del':
+            msg = '{:__("Confirm delete?")}';
+            break;
+            case 'CutFile':
+            msg = '{:__("Cut")}？';
+            break;
+            case 'CutFiles':
+            msg = '{:__("Copy")}？';
+            break;
+            default:
+            msg = '?????????'
+            break;
+        }
+        layer.confirm(msg, {
+              btn: ['{:__("Confirm")}','{:__("Cancel")}']
+            }, function(){
+                var l = $('#loading_box').lyearloading({
+                    opacity: 0.125,
+                    spinnerSize: 'lg'
+                });
+                $.post('', {type:'batch',path: path,data:data,batch:batchType}, function(data, textStatus, xhr) {
+                    if(batchType=='CutFile'||batchType=='CutFiles'){
+                        layer.msg(data.msg);
+                        // setTimeout("location.reload();", 1000);
+                    }else{
+                        EchoMsg(data.msg);
+                    } 
+                })
+                .fail(function () {
+                    EchoMsg('{:__("Request error, please try again later")}');
+                })
+                .always(function () {
+                    l.destroy();
+                });
+            }, function(index){
+            layer.close(index);
+        });
+        
+    }
+    // 批量操作获取内容
+    function batch(){
+        var arry = new Array();
+        $('input[name="ids[]"]:checked').each(function(index, element) {
+            arry.push($(this).val());
+        });
+        var arrystr = arry.join(',');
+        if(!arrystr){
+            layer.msg('{:__("No content selected")}');
+            return false;
+        }
+        return arrystr;
+    }
+</script>
+{/block}

@@ -1,0 +1,217 @@
+{extend name="common/base" /}
+{block name="content"}
+<link href="__CDN____STATIC__/Light-Year/js/bootstrap-datepicker/bootstrap-datepicker3.min.css?v={$static_version}" rel="stylesheet">
+<link href="__CDN____STATIC__/Light-Year/js/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css?v={$static_version}" rel="stylesheet">
+<link href="__CDN____STATIC__/Light-Year/js/bootstrap-clockpicker/bootstrap-clockpicker.min.css?v={$static_version}" rel="stylesheet">
+<div class="row">
+	<div class="col-md-12">
+		<div class="card">
+			<div class="card-header">
+				<header class="card-title">
+					{:__('Total')}
+				</header>
+			</div>
+			<div class="card-body">
+				<table class="table table-bordered">
+					<thead>
+						<tr>
+							<th colspan="2">{:__('Status')}：
+								{if $siteTotal.open }
+									<span style="color:green">{:__('Open')}</span>
+									{else /}
+									<span style="color:#2288cc">{:__('Close')}</span>
+								{/if}
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td style="text-align: center;">{:__('Total flow')}</td>
+							<td style="text-align: center;">{:__('Total request')}</td>
+						</tr>
+						<tr>
+							<td style="text-align: center;">{$Network.total_size|default="0"}</td>
+							<td style="text-align: center;">{$Network.total_request|default="0"}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+		<div class="card" id="loading_box">
+			<div class="card-header">
+					<nav class="navbar justify-content-between" style="width:100%;">
+						<a class="navbar-brand">{:__('Flow total')}</a>
+						<form class="form-inline">
+							<input type="text" name="time" class="form-control" data-date-end-date="0d" data-provide="datepicker" data-autoclose="true" value="{$day}" data-date-highlight="true"/>
+						  <button class="btn btn-outline-warning my-2 my-sm-0" type="submit">{:__('Unfold')}</button>
+						</form>
+					  </nav>
+					<!-- <div class="form-group form-inline">
+						流量统计报表
+					</div> -->
+			</div>
+			<div class="card-body">
+				<div class="table-responsive">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th colspan='11'>{:__('Flow total')}</th>
+							</tr>
+							<tr>
+								<th>{:__('Date')}</th>
+								<th>{:__('Flow')}</th>
+								<th>{:__('Request')}</th>
+								<th>PV</th>
+								<th>UV</th>
+								<th>IP</th>
+								<th>POST</th>
+								<th>GET</th>
+								<th>500</th>
+								<th>502</th>
+								<th>503</th>
+							</tr>
+						</thead>
+						<tbody>
+							{if $Network.days}
+							{volist name="Network.days" id="net" empty="__('Empty')"}
+							<tr>
+								<td>{$net.date|default="--"}</td>
+								<td>{$net.size|default="0"}</td>
+								<td>{$net.request|default="0"}</td>
+								<td>{$net.pv|default="0"}</td>
+								<td>{$net.uv|default="0"}</td>
+								<td>{$net.ip|default="0"}</td>
+								<td>{$net.post|default="0"}</td>
+								<td>{$net.get|default="0"}</td>
+								<td>{$net.500|default="0"}</td>
+								<td>{$net.502|default="0"}</td>
+								<td>{$net.503|default="0"}</td>
+							</tr>
+							{/volist}
+							{else /}
+							<tr>
+								<td colspan='11'>{:__('There are currently no network statistics')}</td>
+							</tr>
+							{/if}
+						</tbody>
+					</table>
+				</div>
+
+
+				<div class="table-responsive">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th colspan='11'>{:__('Spider total')}</th>
+							</tr>
+							<tr>
+								<th>{:__('Date')}</th>
+								<th>{:__('Baidu')}</th>
+								<th>{:__('360')}</th>
+								<th>{:__('Google')}</th>
+								<th>{:__('Sogo')}</th>
+								<th>{:__('Bing')}</th>
+								<th>{:__('Soso')}</th>
+								<th>{:__('Sm')}</th>
+								<th>{:__('Yahoo')}</th>
+								<th>{:__('Sum')}</th>
+							</tr>
+						</thead>
+						<tbody>
+							{if $Spider.days}
+							{volist name="Spider.days" id="Spider" empty="__('Empty')"}
+							<tr>
+								<td>{$Spider.date|default="0"}</td>
+								<td>{$Spider.baidu|default="0"}</td>
+								<td>{$Spider.360|default="0"}</td>
+								<td>{$Spider.google|default="0"}</td>
+								<td>{$Spider.sogou|default="0"}</td>
+								<td>{$Spider.bing|default="0"}</td>
+								<td>{$Spider.soso|default="0"}</td>
+								<td>{$Spider.yisou|default="0"}</td>
+								<td>{$Spider.yahoo|default="0"}</td>
+								<td>{$Spider.total|default="0"}</td>
+							</tr>
+							{/volist}
+							{else /}
+							<tr>
+								<td colspan='11'>{:__('There are currently no spider statistics')}</td>
+							</tr>
+							{/if}
+						</tbody>
+					</table>
+				</div>
+				<div class="table-responsive">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th colspan='11'>{:__('Client total')}</th>
+							</tr>
+							<tr>
+								<th>{:__('Date')}</th>
+								<th>{:__('Windows')}</th>
+								<th>{:__('Android')}</th>
+								<th>{:__('iPhone')}</th>
+								<th>{:__('Mac')}</th>
+								<th>{:__('Wechat')}</th>
+								<th>{:__('Chrome')}</th>
+								<th>{:__('Firefox')}</th>
+								<th>{:__('QQ')}</th>
+								<th>{:__('Other')}</th>
+							</tr>
+						</thead>
+						<tbody>
+							{if $Client}
+							{volist name="Client" id="Client" empty="__('Empty')"}
+							<tr>
+								<td>{$Client.date|default="--"}</td>
+								<td>{$Client.Windows|default="0"}</td>
+								<td>{$Client.Android|default="0"}</td>
+								<td>{$Client.iphone|default="0"}</td>
+								<td>{$Client['Mac OS X']|default="0"}</td>
+								<td>{$Client.weixin|default="0"}</td>
+								<td>{$Client.Chrome|default="0"}</td>
+								<td>{$Client.Firefox|default="0"}</td>
+								<td>{$Client.QQBrowser|default="0"}</td>
+								<td>{$Client.other|default="0"}</td>
+							</tr>
+							{/volist}
+							{else /}
+							<tr>
+								<td colspan='11'>{:__('There are currently no client statistics')}</td>
+							</tr>
+							{/if}
+						</tbody>
+					</table>
+				</div>
+				<hr>
+				<small class="text-muted">
+					<span style="color:red">！</span> {:__('PV(PageView)：Each time a user opens a website page, it is recorded once. The user opens the same page multiple times, and the traffic value accumulates multiple times. This metric measures website traffic.')}<br>
+					<span style="color:red">！</span> {:__('UV (Independent Visitors): The number of Internet computers that visit your website (based on cookies). This indicator measures the number of independent visitors.')}<br>
+				</small>
+			</div>
+		</div>
+	</div>
+</div>
+{/block}
+{block name="script"}
+<!--日期选择器-->
+<script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/bootstrap-datepicker/bootstrap-datepicker.min.js?v={$static_version}"></script>
+<script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js?v={$static_version}"></script>
+<script type="text/javascript">
+	$(function(){
+		$('.dayTime').on('change',function(){
+			var l = $('#loading_box').lyearloading({
+				opacity: 0.125,
+				spinnerSize: 'lg'
+			});
+			time = $(this).val();
+			window.location.href="?time="+time;
+		});
+	})
+</script>
+{/block}

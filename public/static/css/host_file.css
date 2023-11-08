@@ -1,0 +1,85 @@
+.cm-s-default {
+    height: 100% !important;
+}
+
+/*.CodeMirror pre{
+    padding-left: 25px !important;
+}*/
+/*分片上传css*/
+#file_input {
+    display: none;
+}
+
+#up_box {
+    background-color: #fafbfe;
+    border: #e4e5e9 1px solid;
+    margin: 0;
+    padding: 10px;
+    clear: both;
+    height: 360px;
+    overflow: auto;
+}
+
+#up_box li {
+    list-style-type: none;
+    height: 30px;
+    line-height: 30px;
+    font-size: 12px;
+    width: 100%;
+    margin: 0 0 5px;
+    padding: 0;
+}
+
+#up_box li .filename {
+    display: inline-block;
+    height: 30px;
+    margin-right: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 240px;
+}
+
+#up_box li .filesize {
+    color: #999;
+    display: inline-block;
+    height: 30px;
+    overflow: hidden;
+}
+
+#up_box li em {
+    font-style: normal;
+    color: #06F;
+    float: right;
+    margin-right: 10px;
+}
+
+#totalProgress progress {
+    width: 180px;
+    height: 10px;
+    border: 1px solid #ccc;
+    background-color: #e6e6e6;
+    color: #0064b4;
+    opacity: .9;
+}
+
+.layui-layer-content {
+    padding: 10px;
+}
+.text-middle{
+    vertical-align:middle;
+}
+
+.CodeMirror {
+    border: 1px solid #eee;
+    height: auto;
+}
+
+.CodeMirror-scroll {
+    height: auto;
+    overflow-y: hidden;
+    overflow-x: auto;
+}
+.CodeMirror-hints{
+    z-index:19991017 !important;
+}

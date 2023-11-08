@@ -1,0 +1,13 @@
+/nbproject/
+/runtime/*
+/application/admin/command/Install/*.lock
+/public/uploads/*
+.idea
+*.log
+*.css.map
+!.gitkeep
+.env
+.svn
+.vscode
+/logs/
+/Data/

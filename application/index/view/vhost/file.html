@@ -1,0 +1,1453 @@
+{extend name="common/base" /}
+{block name="css"}
+<link rel="stylesheet" href="__CDN____STATIC__/css/host_file.css?v={$static_version}">
+{/block}
+{block name="content"}
+{include file='common/file_head'/}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card" id="loading_box">
+            <div class="card-body example-box">
+                
+                <button class="btn btn-sm btn-success float-right" onclick="location.reload()" title=":__('Refresh')}"><i
+                        class="mdi mdi-restore"></i></button>
+                <button class="btn btn-sm btn-yellow float-right" onclick="openDown()">{:__("Remote download")}</button>
+                <button class="btn btn-sm btn-dark float-right" onclick="newdir()">{:__('Create dir')}</button>
+                <button class="btn btn-sm btn-purple float-right" onclick="newfile()">{:__('Create file')}</button>
+                <button class="btn btn-sm btn-info float-right" onclick="UploadFiles()">{:__('Upload')}</button>
+                <input class="float-right btn" type="search" placeholder="{:__('Search')}" aria-label="Search" id="search" value="{$search}">
+                <div class="batchAction" style="display: none;">
+                    <button class="btn btn-sm btn-info float-right"
+                        onclick="batchAction('CutFiles')">{:__("Copy")}</button>
+                    <button class="btn btn-sm btn-info float-right"
+                        onclick="batchAction('CutFile')">{:__("Cut")}</button>
+                    <button class="btn btn-sm btn-info float-right"
+                        onclick="openZip('{$viewpath}'+getBatchFileName(),batch())">{:__("Condense")}</button>
+                    <button class="btn btn-sm btn-info float-right" onclick="batchAction('del')">{:__('Delete')}</button>
+                </div>
+
+                <!-- <form id="btyUploadFile">
+                    <div class="upload-drag" id="upload-drag" onclick="zunfile.click()" title="点击上传文件" style="float: right;">
+                        <p id="stat" class="btn btn-sm btn-info">上传文件</p>
+                        <input type="file" id="zunfile" name="zunfile" onchange="sc();" style="display:none" accept="*/*">
+                    </div>
+                </form> -->
+                <div style="float: left;padding-left: 10px;padding-top:5px;">
+                    {:__('Current directory')}：
+                    <a href="{:url('index/vhost/file')}" class="loading_dir">
+                        {:__('Root')}
+                    </a>
+                    {volist name="paths" id="path"}
+                    / <a href="?path={$path.url}" class="loading_dir">{$path.path}</a>
+                    {/volist}
+                    <!-- {$viewpath} -->
+                    {if cookie('vhost_cutcopy_cutFileNames')}
+                    <a href="javascript:PasteFile('{$viewpath}{:cookie(\'vhost_cutcopy_cutFileName\')}');">{:__('Paste')}</a>
+                    {elseif cookie('vhost_cutcopy_copyFileNames')}
+                    <a href="javascript:PasteFile('{$viewpath}{:cookie(\'vhost_cutcopy_cutFileName\')}',1);">{:__('Paste')}</a>
+                    {elseif cookie('vhost_cutcopy_CutFile')}
+                    <a href="javascript:BatchPaste('2');">{:__('Paste')}</a>
+                    {elseif cookie('vhost_cutcopy_CutFiles')}
+                    <a href="javascript:BatchPaste('1');">{:__('Paste')}</a>
+                    {/if}
+                </div>
+
+                <div class="table-responsive" style="clear: both;">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <td>
+                                    <label class="lyear-checkbox checkbox-primary">
+                                        <input type="checkbox" id="check-all"><span></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    {:__('File name')}
+                                </td>
+                                <td>
+                                    {:__('File size')}
+                                </td>
+                                <td>
+                                    {:__('Change the time')}
+                                </td>
+                                <td>
+                                    {:__('Jurisdiction')}
+                                </td>
+                                <td>
+                                    {:__('Owner')}
+                                </td>
+                                <td>
+                                    {:__('Operation')}
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {volist name="dirList.DIR" id="dir"}
+                            {if 1||$dir['4']!='root'}
+                            <tr>
+                                <td>
+                                    <label class="lyear-checkbox checkbox-primary">
+                                        <input type="checkbox" name="ids[]" value="{$dir['0']}"><span></span>
+                                    </label>
+                                </td>
+                                {volist name="dir" id="dirlist" offset="0" length='5'}
+                                <td>
+                                    {switch name="i" }
+
+                                    {case value="1"}
+                                    <span class="mdi mdi-folder text-warning mdi-24px text-middle"></span> <a als="{$viewpath}{$dirlist}" href="?path={$viewpath}{$dirlist}" title="{:__('Click to enter')}"
+                                        class="loading_dir">
+                                        {$dirlist}
+                                    </a>
+                                    {/case}
+                                    {case value="2"}
+                                    <a href="javascript:;" id="dirSize"
+                                        onclick="getSize('{$viewpath}{$dir[\'0\']}',this);">
+                                        {:__('Calculated size')}
+                                    </a>
+                                    {/case}
+
+                                    {case value="3"}{$dirlist|date="Y-m-d",###}{/case}
+                                    {default /}{$dirlist}
+                                    {/switch}
+                                </td>
+
+                                {/volist}
+                                <td>
+                                    <span>
+                                        <a class="btlink"
+                                            href="javascript:CutFile('{$viewpath}{$dir['0']}','{$dir['0']}',1);">
+                                            {:__("Copy")}
+                                        </a>
+                                        |
+                                        <a class="btlink"
+                                            href="javascript:CutFile('{$viewpath}{$dir['0']}','{$dir['0']}');">
+                                            {:__("Cut")}
+                                        </a>
+                                        |
+                                        <a class="btlink" href="javascript:MvFile('{$dir['0']}');">
+                                            {:__("Rename")}
+                                        </a>
+                                        |
+                                        <a class="btlink"
+                                            href="javascript:openZip('{$viewpath}{$dir['0']}','{$dir['0']}');">
+                                            {:__("Condense")}
+                                        </a>
+                                        |
+                                        <a class="btlink" href="javascript:;"
+                                            onclick="DeleteDir('{$viewpath}{$dir[\'0\']}')">
+                                            {:__('Delete')}
+                                        </a>
+                                    </span>
+                                </td>
+                            </tr>
+                            {/if}
+                            {/volist}
+                            {volist name="dirList.FILES" id="files"}
+                            {if $files['0']!='.user.ini' && (isset($files['4']) && $files['4']!='root') || $hostInfo->server_os=='windows'}
+                            <tr>
+                                <td>
+                                    <label class="lyear-checkbox checkbox-primary">
+                                        <input type="checkbox" name="ids[]" value="{$files['0']}"><span></span>
+                                    </label>
+                                </td>
+                                {volist name="files" id="fileslist" offset="0" length='5'}
+                                <td>
+                                    {switch name="i" }
+                                    {case value="2"}{:formatBytes($fileslist)}{/case}
+                                    {case value="3"}{$fileslist|date="Y-m-d",###}{/case}
+                                    {default /}
+                                    
+                                    <?php 
+                                    if($i==1){
+                                    switch (fileExtension($files['0'])) {
+                                        case 'bmp':
+                                        case 'gif':
+                                        case 'png':
+                                        case 'jpeg':
+                                        case 'jpg':
+                                        case 'tiff':
+                                        case 'ico':
+                                        ?>
+                                        <span class="mdi mdi-file-image text-primary mdi-24px text-middle"></span>
+                                        <?php 
+                                        break;
+                                        case 'zip':
+                                        case 'rar':
+                                        case 'gz':
+                                        case '7z':
+                                        case 'rar':
+                                        case 'gz':
+                                        ?>
+                                        <span class="mdi mdi-zip-box text-warning mdi-24px text-middle"></span>
+                                        <?php 
+                                        break;
+                                        case 'sql':
+                                        ?>
+                                        <span class="mdi mdi-database text-danger mdi-24px text-middle"></span>
+                                        <?php 
+                                        break;
+                                        case 'txt':
+                                        ?>
+                                        <span class="mdi mdi-file-document text-gray mdi-24px text-middle"></span>
+                                        <?php 
+                                        break;
+                                        case 'php':
+                                        ?>
+                                        <span class="mdi mdi-file-code text-cyan mdi-24px text-middle"></span>
+                                        <?php 
+                                        break;
+                                        case 'html':
+                                        ?>
+                                        <span class="mdi mdi-language-html5 text-info mdi-24px text-middle"></span>
+                                        <?php 
+                                        break;
+                                    default:
+                                        ?>
+                                        <span class="mdi mdi-file text-secondary mdi-24px text-middle"></span>
+                                        <?php 
+                                            break;
+                                    }
+                                }?>
+                                    {$fileslist}
+                                    {/switch}
+                                </td>
+                                {/volist}
+                                <td>
+                                    <span id="operation">
+                                        <a class="btlink"
+                                            href="javascript:CutFile('{$viewpath}{$files['0']}','{$files['0']}',1);">
+                                            {:__("Copy")}
+                                        </a>
+                                        |
+                                        <a class="btlink"
+                                            href="javascript:CutFile('{$viewpath}{$files['0']}','{$files['0']}');">
+                                            {:__("Cut")}
+                                        </a>
+                                        |
+                                        <a class="btlink" href="javascript:MvFile('{$files['0']}');">
+                                            {:__("Rename")}
+                                        </a>
+                                        |
+                                        <a class="btlink"
+                                            href="javascript:openZip('{$viewpath}{$files['0']}','{$files['0']}');">
+                                            {:__("Condense")}
+                                        </a>
+                                        {if fileExtension($files['0'])=='zip'||fileExtension($files['0'])=='rar'}
+                                        |
+                                        <a class="btlink"
+                                            href="javascript:openunZip('{$viewpath}{$files['0']}','{$viewpath}','{:fileExtension($files['0'])}');">
+                                            {:__('Unzip')}
+                                        </a>
+                                        {/if}
+                                        {if fileExtension($files['0'])=='gz'||fileExtension($files['0'])=='tgz'}
+                                        |
+                                        <a class="btlink"
+                                            href="javascript:openunZip('{$viewpath}{$files['0']}','{$viewpath}','tar');">
+                                            {:__('Unzip')}
+                                        </a>
+
+                                        {/if}
+                                        <?php 
+                                switch (fileExtension($files['0'])) {
+                                case 'bmp':
+                                case 'gif':
+                                case 'png':
+                                case 'jpeg':
+                                case 'jpg':
+                                case 'tiff':
+                                case 'ico':
+                                ?>
+                                    |
+                                    <a class="btlink" href="javascript:;"
+                                        onclick="images_view('{$viewpath}{$files[\'0\']}')">
+                                        {:__('Preview')}
+                                    </a>
+                                <?php
+                                break;
+                                case 'zip':
+                                case 'rar':
+                                case 'gz':
+                                case '7z':
+                                case 'rar':
+                                case 'gz':
+                                break;
+
+                                case 'sql':
+                                ?>
+                                        |
+                                        <a class="btlink" href="javascript:;"
+                                            onclick="sqlInput('{$viewpath}{$files[\'0\']}','{:fileExtension($files[\'0\'])}')">
+                                            {:__('Import')}
+                                        </a>
+                                        |
+                                        <a class="btlink" href="javascript:;"
+                                            onclick="editFile('{$viewpath}{$files[\'0\']}','{:fileExtension($files[\'0\'])}')">
+                                            {:__('Edit')}
+                                        </a>
+                                        <?php
+                                        break;
+                                case 'php':
+                                ?>
+                                        |
+                                        <a class="btlink" href="javascript:;"
+                                            onclick="webshellcheck('{$viewpath}{$files[\'0\']}')">
+                                            {:__('Detect')}
+                                        </a>
+                                        <?php
+                                default:
+                                ?>
+                                        |
+                                        <a class="btlink" href="javascript:;"
+                                            onclick="editFile('{$viewpath}{$files[\'0\']}','{:fileExtension($files[\'0\'])}')">
+                                            {:__('Edit')}
+                                        </a>
+                                        <?php
+                                break;
+                            }?>
+                                        |
+                                        <a class="btlink"
+                                            href="{:url('index/vhost/file')}?go=1&downfile={$viewpath}{$files['0']}"
+                                            target="_blank">
+                                            {:__('Download')}
+                                        </a>
+                                        |
+                                        <a class="btlink" href="javascript:;"
+                                            onclick="DeleteFile('{$viewpath}{$files[\'0\']}')">
+                                            {:__('Delete')}
+                                        </a>
+                                    </span>
+                                </td>
+                            </tr>
+                            {/if}
+                            {/volist}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="script"}
+<script src="__CDN__/assets/libs/layer/layer.js?v={$static_version}"></script>
+<script type="text/javascript" src="__CDN____STATIC__/Light-Year/js/bootstrap-notify.min.js?v={$static_version}"></script>
+<script type="text/javascript">
+// 弹窗自适应宽高
+var area = [$(window).width() > 800 ? '35%' : '90%', $(window).height() > 600 ? '' : ''];
+    $(function () {
+        $('.loading_dir,.loading_box').on('click', function () {
+            var l = $('body').lyearloading({
+                opacity: 0.2,
+                spinnerSize: 'lg',
+                spinnerText: '{:__("Loading")}',
+                textColorClass: 'text-info',
+                spinnerColorClass: 'text-info'
+            });
+        });
+        $('#search').bind('keydown', function (event) {
+            var event = window.event || arguments.callee.caller.arguments[0];
+            if (event.keyCode == 13){
+                window.location.href = "?path={$viewpath}&search="+$('#search').val();
+            }
+        });
+    });
+
+    function DeleteFile(file) {
+        if (!file) {
+            $.notify({
+                message: '{:__("Please select file")}',
+            }, {
+                type: 'warning'
+            });
+            return false;
+        }
+        $.confirm({
+            title: '{:__("Reminder")}',
+            content: '{:__("Confirm delete?")}',
+            icon: 'mdi mdi-alert',
+            animation: 'scale',
+            closeAnimation: 'zoom',
+            buttons: {
+                confirm: {
+                    text: '{:__("Confirm")}',
+                    btnClass: 'btn-orange',
+                    action: function () {
+                        var l = $('#loading_box').lyearloading({
+                            opacity: 0.125,
+                            spinnerSize: 'lg'
+                        });
+                        $.post('{:url("index/vhost/file")}', {
+                                type: 'deletefile',
+                                file: file
+                            }, function (data, textStatus, xhr) {
+                                EchoMsg(data.msg, 1);
+                            })
+                            .fail(function () {
+                                EchoMsg('{:__("Request error, please try again later")}');
+                            })
+                            .always(function () {
+                                l.destroy();
+                            })
+                    }
+                },
+                '{:__("Cancel")}': function () {}
+            }
+        });
+    }
+
+    function webshellcheck(file) {
+        if (!file) {
+            $.notify({
+                message: '{:__("Please select file")}',
+            }, {
+                type: 'warning'
+            });
+            return false;
+        }
+        var l = $('#loading_box').lyearloading({
+            opacity: 0.125,
+            spinnerSize: 'lg'
+        });
+        $.post('{:url("index/vhost/file")}', {
+                type: 'webshellcheck',
+                file: file
+            }, function (data, textStatus, xhr) {
+                EchoMsg(data.msg);
+            })
+            .fail(function () {
+                EchoMsg('{:__("Request error, please try again later")}');
+            })
+            .always(function () {
+                l.destroy();
+            })
+    }
+
+    function images_view(file){
+        if (!file) {
+            $.notify({
+                message: '{:__("Please select file")}',
+            }, {
+                type: 'warning'
+            });
+            return false;
+        }
+        // var l = $('#loading_box').lyearloading({
+        //     opacity: 0.125,
+        //     spinnerSize: 'lg'
+        // });
+        $.post('{:url("index/vhost/file")}?type=images&file='+file, {
+                type: 'images',
+                file: file
+            }, function (data, textStatus, xhr) {
+                
+                console.log(data);
+                layer.open({
+                    type: 1,
+                    title: false,
+                    closeBtn: 0,
+                    area: area,
+                    skin: 'layui-layer-nobg', //没有背景色
+                    shadeClose: true,
+                    content: '<img src="'+data.image+'">'
+                });
+            })
+            .fail(function () {
+                EchoMsg('{:__("Request error, please try again later")}');
+            })
+            .always(function () {
+                // l.destroy();
+            })
+        
+    }
+    
+    function sqlInput(file) {
+        if (!file) {
+            $.notify({
+                message: '{:__("Please select file")}',
+            }, {
+                type: 'warning'
+            });
+            return false;
+        }
+        layer.confirm('{:__("Are you sure you want to import the database? Importing will overwrite the previous data~!")}', {
+            btn: ['{:__("Confirm")}', '{:__("Cancel")}']
+        }, function () {
+            var l = $('#loading_box').lyearloading({
+                opacity: 0.125,
+                spinnerSize: 'lg'
+            });
+            $.post('{:url("index/vhost/file")}', {
+                type: 'sqlinput',
+                file: file
+            }, function (data, textStatus, xhr) { 
+                EchoMsg(data.msg, 1);
+            })
+            .fail(function () {
+                EchoMsg('{:__("Request error, please try again later")}');
+            })
+            .always(function () {
+                l.destroy();
+            });
+        }, function (index) {
+
+        });
+
+    }
+
+    function DeleteDir(file) {
+        if (!file) {
+            layer.msg('{:__("Please select dir")}');
+            return false;
+        }
+        layer.confirm('{:__("Confirm delete?")}', {
+            btn: ['{:__("Confirm")}', '{:__("Cancel")}']
+        }, function () {
+            var l = $('#loading_box').lyearloading({
+                opacity: 0.125,
+                spinnerSize: 'lg'
+            });
+            $.post('{:url("index/vhost/file")}', {
+                type: 'deletedir',
+                file: file
+            }, function (data, textStatus, xhr) {
+                EchoMsg(data.msg, 1);
+            })
+            .fail(function () {
+                EchoMsg('{:__("Request error, please try again later")}');
+            })
+            .always(function () {
+                l.destroy();
+            });
+        }, function (index) {
+
+        });
+
+    }
+
+    function openZip(param, sfile) {
+        if (!param) {
+            $.notify({
+                message: '{:__("Please select file")}',
+            }, {
+                type: 'warning'
+            });
+            return false;
+        }
+        layer.open({
+            type: 1,
+            shift: 5,
+            closeBtn: 2,
+            area: area,
+            title: '{:__("Condense")}',
+            content: '<div class="bt-form pd20 pb70" style="padding:20px;">' +
+                '<div class="">' +
+                '<input type="hidden" class="form-control" id="path" value="{$viewpath}" placeholder="" />' +
+                '<input type="hidden" class="form-control" id="sfile" value="' + sfile +
+                '" placeholder="" />' +
+                '<div class="form-group"><label>{:__("Condense type")}</label><select class="bt-input-text form-control" name="z_type" id="zipType"><option value="tar.gz">tar.gz ({:__("Recommend")})</option><option value="zip">zip ({:__("Common format")})</option><option value="rar">rar ({:__("WinRAR is better compatible with Chinese")})</option></select></div>' +
+                '<div class="form-group"><label>{:__("Condense to")}</label><input type="text" class="bt-input-text form-control" id="zipdfile" value="' +
+                param + '.tar.gz" placeholder="{:__("Condense to")}" param="' + param + '"/>' +
+                '</div>' +
+                '<p></p><div class="bt-form-submit-btn" style="text-align:right;margin-top:10px;">' +
+                '<button type="button" class="btn btn-danger btn-sm btn-title" onclick="layer.closeAll()">{:__("Close")}</button>' +
+                '<button type="button" id="ReNameBtn" class="btn btn-success btn-sm btn-title" onclick="Zip(\'' +
+                param + '\',1)">{:__("Condense")}</button>' +
+                '</div></div>' +
+                '</div>'
+        });
+        $('#zipType').change(function () {
+            $('#zipdfile').val($('#zipdfile').attr('param') + '.' + $(this).val());
+        });
+
+    }
+
+
+    function Zip(param) {
+        if (!param) {
+            $.notify({
+                message: '{:__("Please select file")}',
+            }, {
+                type: 'warning'
+            });
+            return false;
+        }
+        zipType = $("#zipType").val();
+        dfile = $("#zipdfile").val();
+        sfile = $("#sfile").val();
+        path = $("#path").val();
+        $.post('{:url("index/vhost/file")}', {
+            path: path,
+            sfile: sfile,
+            dfile: dfile,
+            zipType: zipType,
+            type: 'zip'
+        }, function (data, textStatus, xhr) {
+            EchoMsg(data.msg, 1);
+        });
+
+    }
+
+    function isZip(fileName) {
+        if (!fileName) {
+            return false;
+        }
+        var ext = fileName.split('.');
+        var extName = ext[ext.length - 1].toLowerCase();
+        if (extName == 'zip' || extName == 'rar') return 0;
+        if (extName == 'gz' || extName == 'tgz') return 1;
+        return -1;
+    }
+
+    function openunZip(sifle, path, zip) {
+        if (!sifle) {
+            $.notify({
+                message: '{:__("Please select file")}',
+            }, {
+                type: 'warning'
+            });
+            return false;
+        }
+        var strVar = "";
+        strVar = '<form id="unzip"><div class="bt-form pd20 pb70" style="padding:20px;">' +
+                '<div class="">' +
+                '<input type="hidden" name="type" class="form-control" value="unzip" placeholder="" />' +
+                '<input type="hidden" name="zipType" class="form-control" value="' + zip +'" placeholder="" />' +
+                '<div class="form-group"><label>{:__("File name")}</label><input class="bt-input-text form-control" name="sfile" value="'+sifle+'" placeholder="{:__("File name")}"></div>' +
+                '<div class="form-group"><label>{:__("Unzip to")}</label><input type="text" class="bt-input-text form-control" name="dfile" value="' + path + '" placeholder="{:__("Unzip to")}"/>' +
+                '</div>' +
+                '<div class="form-group"><label>{:__("Unzip password")}</label><input type="text" class="bt-input-text form-control" name="password" value="" placeholder="{:__("No password, please leave blank")}"/></div>' +
+                '<div class="form-group"><label>{:__("Coding")}</label><select class="form-control" name="coding"><option value="UTF-8">UTF-8</option><option value="gb18030">GBK</option></select></div>' +
+                '<p></p><div class="bt-form-submit-btn" style="text-align:right;margin-top:10px;">' +
+                '<button type="button" class="btn btn-danger btn-sm btn-title" onclick="layer.closeAll()">{:__("Close")}</button>' +
+                '<button type="button" id="ReNameBtn" class="btn btn-success btn-sm btn-title" onclick="unZip()">{:__("Unzip")}</button>' +
+                '</div></div>' +
+                '</div></form>';
+
+        layer.open({
+            type: 1,
+            shift: 5,
+            closeBtn: 2,
+            area: area,
+            title: '{:__("Unzip")}',
+            content: strVar
+        });
+    }
+
+    function unZip() {
+        data = $('#unzip').serialize();
+        $.post('{:url("index/vhost/file")}', data, function (data, textStatus, xhr) {
+            EchoMsg(data.msg, 1);
+        });
+    }
+
+    function MvFile(file) {
+        if (!file) {
+            $.notify({
+                message: '{:__("Please select file")}',
+            }, {
+                type: 'warning'
+            });
+            return false;
+        }
+        path = '{$viewpath}';
+        layer.prompt({
+            title: '{:__("Rename")}',
+            formType: 3,
+            value: file
+        }, function (text, index) {
+
+            $.post('{:url("index/vhost/file")}', {
+                type: 'MvFile',
+                path: path,
+                oldName: file,
+                newName: text
+            }, function (data, textStatus, xhr) {
+                EchoMsg(data.msg, 1);
+            });
+        });
+    }
+
+    function getSize(path, obj) {
+        var l = $('body').lyearloading({
+            opacity: 0.2,
+            spinnerSize: 'lg',
+            spinnerText: '{:__("Loading")}',
+            textColorClass: 'text-info',
+            spinnerColorClass: 'text-info'
+        });
+        $.post('{:url("index/vhost/file")}', {
+                path: path,
+                type: 'getsize'
+            }, function (data, textStatus, xhr) {
+                obj.innerHTML = data.msg;
+            })
+            .fail(function () {
+                EchoMsg('{:__("Request error, please try again later")}');
+            })
+            .always(function () {
+                l.destroy();
+            })
+
+    }
+
+    function CutFile(file, name = '', copy = '') {
+        if (!file) {
+            $.notify({
+                message: '{:__("Please select file")}',
+            }, {
+                type: 'warning'
+            });
+            return false;
+        }
+        $.post('{:url("index/vhost/file")}', {
+            file: file,
+            type: 'cut',
+            name: name,
+            copy: copy
+        }, function (data, textStatus, xhr) {
+            layer.msg(data.msg);
+        });
+    }
+
+    function PasteFile(path, copy) {
+        if (!path) {
+            layer.msg('{:__("Please select paste file")}');
+            return false;
+        }
+        $.post('{:url("index/vhost/file")}', {
+            type: 'paste',
+            path: path,
+            copy: copy
+        }, function (data, textStatus, xhr) {
+            layer.msg(data.msg);
+        });
+    }
+
+
+    /* ! 宝塔文件上传组件 License  https://www.bt.cn  By 黄文良 <287962566@qq.com> */
+    var bt_upload_file = {
+        split: Config.site.split_size,
+        f: null,
+        f_total: 0,
+        f_path: null,
+        split_size: 1024 * 1024 * Config.site.split_size,
+        _files: [],
+        _error: 0,
+        _start_time: 0,
+        _t_start_time: 0,
+        collback_to: null,
+        upload_url: '{:url("index/vhost/file")}?type=uploadfile&path={:htmlspecialchars($viewpath)}',
+        _loadT: null,
+        open: function (path, is_exts, ps, collback_to) {
+            bt_upload_file.f_path = path;
+            user_agent = navigator.userAgent.toLowerCase();
+            var btn_dir = '';
+            var accept_ext = '';
+            if (!is_exts) {
+                if (user_agent.indexOf('chrome') !== -1 || user_agent.indexOf('firefox') !== -1) {
+                    btn_dir =
+                        '<input type="file" class="btn btn-sm btn-brown" id="dir_input" onchange="bt_upload_file.list(this.files)" style="display:none;"  multiple="true" autocomplete="off" multiple webkitdirectory /><button type="button"  id="opt" onclick="$(\'#dir_input\').click()" autocomplete="off" title="{:__("Supported browsers: Chrome, Firefox, Edge, domestic browsers with speed mode")}" class="btn btn-sm btn-info">{:__("Select directory")}</button>'
+                }
+            } else {
+                accept_ext = 'accept="' + is_exts + '"'
+            }
+            var other_ps = '';
+            if (ps) {
+                other_ps = ' --- <span style="color:red;">' + ps + '</span>'
+            } else {
+                other_ps = ' --- {:__("Support breakpoint resume")}'
+            }
+            if (collback_to) {
+                bt_upload_file.collback_to = collback_to
+            }
+            bt_upload_file._loadT = layer.open({
+                type: 1,
+                title: '{:__("Upload files to")}[{$viewpath}]' + other_ps,
+                area: [$(window).width() > 800 ? '35%' : '90%', $(window).height() > 600 ? '90%' : '90%'],
+                // shadeClose: false,
+                shift: 5,
+                closeBtn: 1,
+                maxmin: true,
+                content: '<div class="fileUploadDiv"><div class="row example-box"><div class="col-lg-6"><input type="file" id="file_input" onchange="bt_upload_file.list(this.files)"  multiple="true" autocomplete="off" ' +
+                    accept_ext +
+                    '  class="btn btn-sm btn-info"/><button type="button"  id="opt" onclick="$(\'#file_input\').click()" autocomplete="off" class="btn btn-sm btn-primary" >{:__("Select file")}</button>' +
+                    btn_dir +
+                    '<span><button type="button" id="up" autocomplete="off" onclick="bt_upload_file.start(0)" class="btn btn-sm btn-success">{:__("Upload start")}</button><!--<button type="button" id="filesClose" autocomplete="off" onClick="layer.close(bt_upload_file._loadT)" class="btn btn-sm btn-danger">{:__("Close")}</button>--></span></div><div class="col-md-6"><span id="totalProgress"></span></div></div></div><div class="table-responsive"><table  class="table"><thead><tr><th>{:__("File name")}</th><th>{:__("File Size")}</th><th>{:__("Status")}</th></tr></thead><tbody id="up_box"></tbody></table></div>'
+            })
+            // 强制全屏
+            layer.full(bt_upload_file._loadT);
+        },
+        list: function (_files) {
+            bt_upload_file._files = _files;
+            var up_box = $("#up_box");
+            $("#up_box").html('');
+            var loadT = layer.msg('{:__("Loading")}', {
+                time: 0,
+                icon: 16,
+                shade: 0.3
+            });
+            for (var i = 0; i < _files.length; i += 1) {
+                var f_name = _files[i].name;
+                if (_files[i].webkitRelativePath) {
+                    f_name = _files[i].webkitRelativePath
+                }
+                up_box.append('<tr class="offset-' + i + '"><td class="filename" title="{:__("Upload to")}: ' + bt_upload_file
+                    .f_path + '/' + f_name + '">' + f_name + '</td><td class="filesize">' + bt_upload_file
+                    .to_size(_files[i].size) + '</td><td class="emmmm">{:__("Waiting for upload")}</td></tr>')
+            }
+            layer.close(loadT)
+        },
+        to_size: function (a) {
+            var d = [" B", " KB", " MB", " GB", " TB", " PB"];
+            var e = 1024;
+            for (var b = 0; b < d.length; b += 1) {
+                if (a < e) {
+                    return (b === 0 ? a : a.toFixed(2)) + d[b]
+                }
+                a /= e
+            }
+        },
+        start: function (i) {
+            var len = bt_upload_file._files.length;
+            if (len === 0) {
+                layer.msg('{:__("Please select file")}!', {
+                    icon: 2
+                });
+                return false
+            }
+            if (i === 0) {
+                bt_upload_file._t_start_time = new Date()
+            }
+            $("#filesClose,#up,#opt").attr("disabled", "disabled");
+            var total_time = bt_upload_file.diff_time(bt_upload_file._t_start_time, new Date());
+            $("#totalProgress").html('<p>{:__("Uploaded")}(' + i + '/' + len + '),' + total_time +
+                '</p> <div class="progress"><div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="' +
+                i + '" aria-valuemin="0" aria-valuemax="' + len + '" style="width: ' + GetPercent(i, len) +
+                '"><span class="sr-only">' + i + '% Complete</span></div></div>');
+            if (len <= i) {
+                $("#totalProgress").html('<p>{:__("Upload success")}(' + i + '/' + len + '), ' + total_time +
+                    '</p> <div class="progress"><div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="' +
+                    i + '" aria-valuemin="0" aria-valuemax="' + len + '" style="width: ' + GetPercent(i,
+                        len) + '"><span class="sr-only">' + i + '% Complete</span></div></div>');
+                bt_upload_file._files = [];
+                $("#filesClose,#up,#opt").removeAttr("disabled");
+                if (bt_upload_file.collback_to) {
+                    bt_upload_file.collback_to(bt_upload_file.f_path)
+                }
+                return false
+            }
+            if (i > 10) {
+                $("#up_box").scrollTop(35 * (i - 10) + 50)
+            }
+            bt_upload_file._start_time = new Date();
+            bt_upload_file._error = 0;
+            bt_upload_file.f = bt_upload_file._files[i];
+            bt_upload_file.f_total = Math.ceil(bt_upload_file.f.size / bt_upload_file.split_size);
+            bt_upload_file.upload(0, i)
+        },
+        upload: function (start, i) {
+            var end = Math.min(bt_upload_file.f.size, start + bt_upload_file.split_size);
+            var len = bt_upload_file._files.length;
+            var f_path = bt_upload_file.f_path;
+            if (bt_upload_file.f.webkitRelativePath) {
+                f_path = bt_upload_file.f_path + '/' + bt_upload_file.f.webkitRelativePath.replace('/' +
+                    bt_upload_file.f.name, '')
+            }
+            var form = new FormData();
+            form.append("f_path", '{$viewpath}');
+            form.append("f_name", bt_upload_file.f.name);
+            form.append("f_size", bt_upload_file.f.size);
+            form.append("f_start", start);
+            form.append("blob", bt_upload_file.f.slice(start, end));
+            form.append("m", "coll_upload");
+            form.append("f", "upload");
+            $.ajax({
+                url: bt_upload_file.upload_url,
+                type: "POST",
+                data: form,
+                async: true,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    if (typeof (data) === "number") {
+                        var progress = parseInt(data / bt_upload_file.f.size * 100);
+                        var total_time = bt_upload_file.diff_time(bt_upload_file._t_start_time,
+                            new Date());
+                        $("#totalProgress").html('<p>{:__("Uploaded")}(' + i + '/' + len + '),' + total_time +
+                            '</p> <div class="progress"><div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="' +
+                            i + '" aria-valuemin="0" aria-valuemax="' + len +
+                            '" style="width: ' + GetPercent(i, len) +
+                            '"><span class="sr-only">' + i + '% Complete</span></div></div>');
+                        $("#up_box tr .emmmm")[i].outerHTML =
+                            '<td class="emmmm" style="color:green;">{:__("Upload progress")}:' + progress + '%</td>';
+                        $("#up_box tr .filesize")[i].outerHTML = '<td class="filesize">' +
+                            bt_upload_file.to_size(data) + '/' + bt_upload_file.to_size(
+                                bt_upload_file.f.size) + '</td>';
+                        $("#up_box tr .emmmm")[i].focus();
+                        bt_upload_file.upload(data, i)
+                    } else {
+                        if (data.code == 1) {
+                            var f_time = bt_upload_file.diff_time(bt_upload_file._start_time,
+                                new Date());
+                            $("#up_box tr .emmmm")[i].outerHTML =
+                                '<td class="emmmm" style="color:green;">{:__("Completed")}(' + f_time + ')</td>';
+                            $("#up_box tr .filesize")[i].outerHTML = '<td class="filesize">' +
+                                bt_upload_file.to_size(bt_upload_file.f.size) + '/' + bt_upload_file
+                                .to_size(bt_upload_file.f.size) + '</td>'
+                        } else {
+                            $("#up_box tr .emmmm")[i].outerHTML =
+                                '<td class="emmmm" style="color:red;">' + data.msg + '</td>'
+                        }
+                        bt_upload_file.start(i + 1)
+                    }
+                },
+                error: function (e) {
+                    if (bt_upload_file._error > 5) {
+                        $("#up_box li .emmmm")[i].outerHTML =
+                            '<td class="emmmm" style="color:red;">{:__("Upload failed")}</td>';
+                        bt_upload_file.start(i + 1);
+                        return
+                    }
+                    bt_upload_file._error += 1;
+                    bt_upload_file.upload(start, i)
+                }
+            })
+        },
+        diff_time: function (start_date, end_date) {
+            var diff = end_date.getTime() - start_date.getTime();
+            var minutes = Math.floor(diff / (60 * 1000));
+            var leave3 = diff % (60 * 1000);
+            var seconds = (leave3 / 1000).toFixed(2);
+            var result = seconds + '{:__("Second")}';
+            if (minutes > 0) {
+                result = minutes + "{:__('Minute')}" + result
+            }
+            return result
+        }
+    };
+
+
+    //普通上传
+    function scs() {
+        var file = $('#zunfile').get(0).files[0]; //获取上传的文件  
+        var fileSize = file.size; //获取上传的文件大小  
+        if (parseInt(fileSize) >= parseInt(maxSize)) {
+            var maxSize = "{$php_upload_max?$php_upload_max:'0'}"; //最大上传(字节)  
+            max = bytes2mb('{$php_upload_max}');
+            parent.alert('{:__("The uploaded file cannot exceed")}' + max + 'M');
+            return false;
+        } else {
+            layer.msg('{:__("Upload loading")}');
+
+            var data = new FormData($('#btyUploadFile')[0]);
+            $.ajax({
+                url: '{:url("index/vhost/file")}?type=uploadfile&path={:htmlspecialchars($viewpath)}',
+                type: 'POST',
+                data: data,
+                dataType: 'JSON',
+                processData: false,
+                contentType: false,
+                xhr: function () {
+                    var xhr = $.ajaxSettings.xhr();
+                    if (onprogress && xhr.upload) {
+                        xhr.upload.addEventListener("progress", onprogress, false);
+                        return xhr;
+                    }
+                }
+            }).done(function (ret) {
+
+                EchoMsg(ret.msg);
+            });
+            return false;
+        }
+    }
+
+    function onprogress(evt) {
+        var loaded = evt.loaded; //已经上传大小情况 
+        var tot = evt.total; //附件总大小 
+        var per = Math.floor(100 * loaded / tot); //已经上传的百分比 
+        layer.msg(per + '%');
+
+    }
+    //文件编辑
+    function editFile(file, fileType) {
+        if (!file) {
+            $.notify({
+                message: '{:__("Please select file")}',
+            }, {
+                type: 'warning'
+            });
+            return false;
+        }
+        randMath = randomNum(1111, 9999);
+        layer.msg('{:__("Loading")}');
+        $.post('{:url("index/vhost/file")}', {
+            file: file,
+            type: 'getfile'
+        }, function (data, textStatus, xhr) {
+            if (data.code == 1) {
+                var u = ["utf-8", "GBK", "GB2312", "BIG5"];
+                var theme = ['default','monokai','3024-day','3024-night','abcdef','ambiance','base16-dark','bespin','base16-light','blackboard','cobalt','colorforth','dracula','duotone-dark','duotone-light','eclipse','elegant','erlang-dark','hopscotch','icecoder','isotope','lesser-dark','liquibyte','material','mbo','mdn-like','midnight','monokai','neat','neo','night','panda-syntax','paraiso-dark','paraiso-light','pastel-on-dark','railscasts','rubyblue','seti','solarized','the-matrix','tomorrow-night-bright','tomorrow-night-eighties','ttcn','twilight','vibrant-ink','xq-dark','xq-light','yeti','zenburn','darcula'];
+                var n = "";
+                var m = "";
+                var o = "";
+                var t = "";
+                var th = "";
+                var is_theme = localStorage.getItem('theme')?localStorage.getItem('theme'):'default';
+                for (var p = 0; p < u.length; p++) {
+                    m = data.encoding == u[p] ? "selected" : "";
+                    n += '<option value="' + u[p] + '" ' + m + ">" + u[p] + "</option>"
+                }
+                for (var p1 = 0; p1 < theme.length; p1++) {
+                    m = is_theme == theme[p1] ? "selected" : "";
+                    th += '<option value="' + theme[p1] + '" ' + m + ">" + theme[p1] + "</option>"
+                }
+                content = '<form class="bt-form pd20 pb70" id="codemirror' + randMath +
+                    '"><div class="container-fluid"><p style="color:#ff0000;margin-bottom:10px;width: 70%;">{:__("Tip: Ctrl+F searches for keywords, Ctrl+G finds the next one, Ctrl+S saves, Ctrl+Shift+R finds and replaces, Ctrl code hint!")}<select class="bt-input-text" name="encoding" style="width: 74px;position: absolute;right: 19px;height: 22px;z-index: 9999;border-radius: 0;">' +
+                    n + '</select><span style="font-size:xx-small;color:#8d6658;padding:0 5px;">{:__("Theme")}:</span><select class="bt-input-text" id="select_theme" name="theme" style="width: 74px;position: absolute;height: 22px;z-index: 9999;border-radius: 0;">'+th+'</select></p><textarea id="textBody' + randMath +
+                    '" style="width: 100%; margin: 0px auto; line-height: 1.8; position: relative; top: 10px; height: 126.8px; display: none;" value=""/></div></form>';
+                //content = '<pre style="width:100%;height:100%;" file="'+file+'"><code  class="php">'+data.data+'</code></pre>';
+                id = 'loading_'+ Math.random() * 10;
+                console.log(id);
+                var index = layer.open({
+                    id:id,
+                    type: 1,
+                    title: '{:__("Edit")}' + file,
+                    shade: 0,
+                    area: ["90%", "90%"],
+                    offset: 'auto',
+                    maxmin: true,
+                    content: content,
+                    btn: ['{:__("Save")}', '{:__("Close")}'],
+                    yes: function () {
+                        $("#textBody" + randMath).text(t.getValue());
+                        content = t.getValue();
+                        encoding = $('#codemirror' + randMath + ' select[name=encoding]').val();
+                        layer.load();
+                        saveFile(file, content, encoding,id);
+                    },
+                    btn2: function () {},
+                    zIndex: layer.zIndex //重点1
+                    // ,success: function(layero){
+                    //     layer.setTop(layero); //重点2
+                    // }
+                });
+                //layer.full(index);
+                
+
+                switch (fileType) {
+                    case "html":
+                    case "htm":
+                        var mixedMode = {
+                            name: "htmlmixed",
+                            scriptTypes: [{
+                                matches: /\/x-handlebars-template|\/x-mustache/i,
+                                mode: null
+                            }, {
+                                matches: /(text|application)\/(x-)?vb(a|script)/i,
+                                mode: "vbscript"
+                            }]
+                        };
+                        doctype = mixedMode;
+                        break;
+                    case "js":
+                        doctype = "text/javascript";
+                        break;
+                    case "json":
+                        doctype = "application/ld+json";
+                        break;
+                    case "css":
+                        doctype = "text/css";
+                        break;
+                    case "php":
+                        doctype = "application/x-httpd-php";
+                        break;
+                    case "tpl":
+                        doctype = "application/x-httpd-php";
+                        break;
+                    case "xml":
+                        doctype = "application/xml";
+                        break;
+                    case "sql":
+                        doctype = "text/x-sql";
+                        break;
+                    case "conf":
+                        doctype = "text/x-nginx-conf";
+                        break;
+                    default:
+                        var mixedMode = {
+                            name: "htmlmixed",
+                            scriptTypes: [{
+                                matches: /\/x-handlebars-template|\/x-mustache/i,
+                                mode: null
+                            }, {
+                                matches: /(text|application)\/(x-)?vb(a|script)/i,
+                                mode: "vbscript"
+                            }]
+                        };
+                        doctype = mixedMode;
+                        break;
+                }
+                //$("#textBody").text(data.data);
+                var q = $(window).height() * 0.9;
+                $("#textBody" + randMath).height(q - 160);
+                var t = CodeMirror.fromTextArea(document.getElementById("textBody" + randMath), {
+                    extraKeys: {
+                        "Ctrl-F": "findPersistent",
+                        "Ctrl-H": "replaceAll",
+                        "Ctrl": "autocomplete",
+                        "Ctrl-S": function () {
+                            $("#textBody" + randMath).text(t.getValue());
+                            content = t.getValue();
+                            encoding = $('#codemirror' + randMath + ' select[name=encoding]').val();
+                            layer.load();
+                            saveFile(file, content, encoding);
+                        }
+                    },
+                    lineNumbers: true,
+                    mode: doctype,
+                    styleActiveLine: true,
+                    matchBrackets: true,
+                    indentUnit: 4,
+                    indentWithTabs: true,
+                    matchtags: true,
+                    autoMatchParens: true,
+                    hintOptions: {
+                        completeSingle: false
+                    }
+
+                    //readOnly:true
+                });
+
+                /**
+                * 用来实时对用户的输入进行提示
+                */
+                function showCodeHint(editor) {
+                    editor.on("cursorActivity", function () {
+                        //获取用户当前的编辑器中的编写的代码
+                        var words = editor.getValue() + "";
+                        //利用正则取出用户输入的所有的英文的字母
+                        words = words.replace(/[a-z]+[\-|\']+[a-z]+/ig, '').match(/([a-z]+)/ig);
+                        //将获取到的用户的单词传入CodeMirror,并在javascript-hint中做匹配
+                        CodeMirror.ukeys = words;
+                        //调用显示提示
+                        editor.showHint();
+                    });
+                }
+
+                $(function(){
+                    // t.on("change",function(t,changes){
+                    //     showCodeHint(t);
+                    // });
+                    $('#select_theme').change(function(){
+                        localStorage.setItem('theme',$(this).val());
+                        t.setOption("theme", $(this).val());
+                    });
+                });
+                //console.log(t.getValue());
+                
+                t.setSize("auto", q - 150);
+                setTimeout(function () {
+                    $("#textBody" + randMath).text(data.data);
+                    t.setValue(data.data)
+                }, 500);
+                t.setOption("theme", is_theme);
+                t.focus();
+            } else {
+                EchoMsg(data.msg);
+            }
+
+        });
+    }
+    // 保存文件
+    function saveFile(file, content, encoding,id='') {
+        console.log(id);
+        if (!file) {
+            $.notify({
+                message: '{:__("Please select file")}',
+            }, {
+                type: 'warning'
+            });
+            return false;
+        }
+        // console.log($('#'+id));
+        // var l = $('#'+id).lyearloading({
+        //     opacity: 0.125,
+        //     spinnerSize: 'lg'
+        // });
+
+        var lod = layer.load(2);
+        layer.style(lod, {
+            zIndex: '9999999999',
+        });
+
+        $.post('{:url("index/vhost/file")}', {
+            file: file,
+            type: 'savefile',
+            content: content,
+            encoding: encoding
+        }, function (data, textStatus, xhr) {
+            layer.msg(data.msg, {
+                time: 2000,
+                icon: 6
+            });
+            // l.destroy();
+            layer.closeAll('loading');
+        });
+    }
+
+    //生成从minNum到maxNum的随机数
+    function randomNum(minNum, maxNum) {
+        switch (arguments.length) {
+            case 1:
+                return parseInt(Math.random() * minNum + 1, 10);
+                break;
+            case 2:
+                return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
+                break;
+            default:
+                return 0;
+                break;
+        }
+    }
+
+    function bytes2mb(bytes) {
+        return Math.round(bytes / 1024 / 1024, 2);
+    }
+    //新建文件夹
+    function newdir() {
+        path = '{$viewpath}';
+        layer.prompt({
+            title: '{:__("Create dir")}',
+            formType: 3
+        }, function (text, index) {
+            var l = $('#loading_box').lyearloading({
+                opacity: 0.125,
+                spinnerSize: 'lg'
+            });
+            $.post('{:url("index/vhost/file")}', {
+                type: 'newdir',
+                path: path,
+                newdir: text
+            }, function (data, textStatus, xhr) {
+                EchoMsg(data.msg, 1);
+            })
+            .fail(function () {
+                EchoMsg('{:__("Request error, please try again later")}');
+            })
+            .always(function () {
+                l.destroy();
+            });
+        });
+    }
+    //新建文件
+    function newfile() {
+        path = '{$viewpath}';
+        layer.prompt({
+            title: '{:__("Create file")}',
+            formType: 3
+        }, function (text, index) {
+            var l = $('#loading_box').lyearloading({
+                opacity: 0.125,
+                spinnerSize: 'lg'
+            });
+            $.post('{:url("index/vhost/file")}', {
+                type: 'newfile',
+                path: path,
+                newfile: text
+            }, function (data, textStatus, xhr) {
+                EchoMsg(data.msg, 1);
+            })
+            .fail(function () {
+                EchoMsg('{:__("Request error, please try again later")}');
+            })
+            .always(function () {
+                l.destroy();
+            });
+        });
+    }
+    //分片上传要用到的js
+    function UploadFiles() {
+
+        var path = '{$viewpath}';
+        bt_upload_file.open(path, null, null, function (path) {});
+        return;
+    }
+    // 百分比计算
+    function GetPercent(num, total) {
+        num = parseFloat(num);
+        total = parseFloat(total);
+        if (isNaN(num) || isNaN(total)) {
+            return "-";
+        }
+        return total <= 0 ? "0%" : (Math.round(num / total * 10000) / 100.00) + "%";
+    }
+    $("#check-all").change(function () {
+        if ($("input[type='checkbox']").prop('checked')) {
+            $('.batchAction').show();
+        } else {
+            $('.batchAction').hide();
+        }
+    });
+    var chk = $('input[type="checkbox"]');
+    chk.click(function () {
+        var len = $('input[type="checkbox"]').filter(":checked").length;
+        if (len >= 2) {
+            $('.batchAction').show();
+        } else {
+            $('.batchAction').hide();
+        }
+    });
+
+    function batchAction(batchType) {
+        path = '{$viewpath}';
+        data = batch();
+
+        var msg = '{:__("Title")}';
+        switch (batchType) {
+            case 'del':
+                msg = '{:__("Confirm delete?")}';
+                break;
+            case 'openZip':
+                msg = '{:__("Condense")}？';
+                break;
+            case 'CutFile':
+                msg = '{:__("Cut")}？';
+                break;
+            case 'CutFiles':
+                msg = '{:__("Copy")}？';
+                break;
+            default:
+                msg = '?????????'
+                break;
+        }
+        layer.confirm(msg, {
+            btn: ['{:__("Confirm")}', '{:__("Cancel")}']
+        }, function () {
+            var l = $('#loading_box').lyearloading({
+                opacity: 0.125,
+                spinnerSize: 'lg'
+            });
+            $.post('{:url("index/vhost/file")}', {
+                type: 'batch',
+                path: path,
+                data: data,
+                batch: batchType
+            }, function (data, textStatus, xhr) {
+                if (batchType == 'CutFile' || batchType == 'CutFiles') {
+                    layer.msg(data.msg);
+                    if(batchType=='del'){
+                        setTimeout("location.reload();", 500);
+                    }
+                } else {
+                    EchoMsg(data.msg, 1);
+                }
+            })
+            .fail(function () {
+                EchoMsg('{:__("Request error, please try again later")}');
+            })
+            .always(function () {
+                l.destroy();
+            });
+        }, function (index) {
+
+        });
+
+    }
+    //批量操作
+    function batch() {
+        var arry = new Array();
+        $('input[name="ids[]"]:checked').each(function (index, element) {
+            arry.push($(this).val());
+        });
+        var arrystr = arry.join(',');
+        if (!arrystr) {
+            layer.msg('{:__("No content selected")}');
+            return false;
+        }
+        return arrystr;
+    }
+
+    function getBatchFileName() {
+        var a = '';
+        $('input[name="ids[]"]:checked').each(function (index, element) {
+            a = $(this).val();
+        });
+        if (!a) {
+            layer.msg('{:__("No content selected")}');
+            return false;
+        }
+        return a;
+    }
+    // 执行粘贴批量复制/剪切的任务
+    function BatchPaste(type) {
+        path = '{$viewpath}';
+        var l = $('#loading_box').lyearloading({
+            opacity: 0.125,
+            spinnerSize: 'lg'
+        });
+        $.post('{:url("index/vhost/file")}', {
+            type: 'BatchPaste',
+            path: path,
+            ty: type
+        }, function (data) {
+            EchoMsg(data.msg);
+        })
+        .fail(function () {
+            EchoMsg('{:__("Request error, please try again later")}');
+        })
+        .always(function () {
+            l.destroy();
+        });
+    }
+
+    function openDown() {
+        var strVar = "";
+        path = '{$viewpath}';
+        strVar = '<form id="DownloadFile"><div class="bt-form pd20 pb70" style="padding:20px;">' +
+                '<div class="">' +
+                '<input type="hidden" name="type" class="form-control" value="DownloadFile"/>' +
+                '<div class="form-group"><label>{:__("Url")}</label><input class="bt-input-text form-control" id="mUrl" name="mUrl" value="" placeholder="{:__("Url")}"></div>' +
+                '<div class="form-group"><label>{:__("Download to")}</label><input type="text" class="bt-input-text form-control" name="path" value="' + path + '" placeholder="{:__("Download to dir")}"/>' +
+                '</div>' +
+                '<div class="form-group"><label>{:__("File name")}</label><input type="text" class="bt-input-text form-control" name="dfilename" id="dfilename" value="" placeholder="{:__("File name")}"/></div>' +
+                '<p></p><div class="bt-form-submit-btn" style="text-align:right;margin-top:10px;">' +
+                '<button type="button" class="btn btn-danger btn-sm btn-title" onclick="layer.closeAll()">{:__("Close")}</button>' +
+                '<button type="button" id="ReNameBtn" class="btn btn-success btn-sm btn-title" onclick="DownloadFile()">{:__("Download")}</button>' +
+                '</div></div>' +
+                '</div></form>';
+        layer.open({
+            type: 1,
+            shift: 5,
+            closeBtn: 2,
+            area: area,
+            title: '{:__("Remote download")}',
+            content: strVar
+        });
+        $("#mUrl").change(function () {
+            durl = $(this).val();
+            console.log(durl);
+            tmp = durl.split('/')
+            $("#dfilename").val(tmp[tmp.length - 1])
+        });
+    }
+    // 远程下载文件
+    function DownloadFile() {
+        data = $('#DownloadFile').serialize();
+        mUrl = $('#mUrl').val();
+        dfilename = $('#dfilename').val();
+        if (mUrl == '') {
+            lay.msg('{:__("%s can not be empty",__("Download url"))}');
+            return false;
+        }
+        if (dfilename == '') {
+            lay.msg('{:__("%s can not be empty",__("File name"))}');
+            return false;
+        }
+        $.post('{:url("index/vhost/file")}', data, function (data, textStatus, xhr) {
+            EchoMsg(data.msg);
+        });
+    }
+</script>
+{/block}

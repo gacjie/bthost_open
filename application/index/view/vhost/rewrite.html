@@ -1,0 +1,114 @@
+{extend name="common/base" /}
+{block name="content"}
+<div class="row">
+	<div class="col-md-12">
+		<div class="card" id="loading-box">
+			<div class="card-header">
+				<header class="card-title">
+					{:__('Rewrite setting')}
+				</header>
+			</div>
+			<div class="card-body">
+				<form action="" method="post">
+					<small class="text-muted">
+						<span
+							style="color:red">！</span>{:__('Note: Please select your application. If the website cannot be accessed normally after setting pseudo-static, please try to set it back to default. You can modify the pseudo-static rule and save it after modification.')}<br>
+						<span style="color:red">！</span>{:__('Note: If enabling functions such as reverse proxy will cause errors when saving some pseudo-static rules, please be aware.')}<br>
+					</small>
+					<hr>
+					<div class="form-group">
+						<label for="dirdomain">{:__('Subdirectory domain')}：</label>
+						<select id="dirdomain" name="dirdomain" class="form-control">
+							<option value="/">/</option>
+							{volist name="dirList.binding" id="domain"}
+							<option value="{$domain.id}">{$domain.domain}</option>
+							{/volist}
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="rewritelist">{:__('Built-in rules')}：</label>
+						<select id="rewritelist" class="form-control">
+							{volist name="rewriteList.rewrite" id="rewrite"}
+							<option value="{$rewrite}">{$rewrite}</option>
+							{/volist}
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="rewrite">{:__('Rule conversion tool')}：<a href="https://www.bt.cn/Tools" target="_blank">Apache {:__('Tooooo')} Nginx</a></label>
+						<div id="loading-textarea">
+							<textarea id="rewrite" style="width: 100%;height: 200px;" name="rewrite"
+								class="form-control">{$rewriteInfo.data}</textarea>
+						</div>
+					</div>
+					<div class="form-group">
+						<input type="button" value="{:__('Save')}" class="btn btn-warning" name="submit" onclick="rewriteSet()">
+					</div>
+
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+	$("#rewritelist").change(function () {
+		rewriteGet();
+	});
+	$("#dirdomain").change(function () {
+		rewriteGet();
+	});
+
+	function rewriteGet() {
+		var l = $('#loading-textarea').lyearloading({
+			opacity: 0.125,
+			spinnerSize: 'lg'
+		});
+		var rewrite = $('#rewritelist').val();
+		var dirdomain = $('#dirdomain').val();
+		$.ajax({
+				url: '{:url("index/vhost/rewriteGet")}',
+				type: 'POST',
+				dataType: 'json',
+				data: {
+					rewrites: rewrite,
+					dirdomain: dirdomain
+				},
+			})
+			.done(function (data) {
+				$('#rewrite').val(data.data);
+			})
+			.fail(function (data) {
+				$('#rewrite').val('error:' + data.msg);
+			})
+			.always(function () {
+				l.destroy();
+			})
+	}
+
+	function rewriteSet() {
+		var l = $('#loading-box').lyearloading({
+			opacity: 0.125,
+			spinnerSize: 'lg'
+		});
+		rewrite = $('#rewrite').val();
+		dirdomain = $('#dirdomain').val();
+		$.post('{:url("index/vhost/rewriteSet")}', {
+				rewrite: rewrite,
+				dirdomain: dirdomain
+			}, function (res) {
+				if (res.code == 1) {
+					EchoMsg('{:__("Completed")}', 1, '{:url("index/vhost/rewrite")}');
+				} else {
+					EchoMsg('error:' + res.msg);
+				}
+			})
+			.fail(function () {
+				EchoMsg('{:__("Request error, please try again later")}');
+			})
+			.always(function () {
+				l.destroy();
+			})
+	}
+</script>
+{/block}

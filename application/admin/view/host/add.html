@@ -1,0 +1,254 @@
+<style>
+    .plans_custom{
+        display: none;
+    }
+</style>
+<div class="panel panel-default panel-intro">
+    <div class="panel-heading">
+        {:build_heading(null,FALSE)}
+        <ul class="nav nav-tabs" data-field="status">
+            <li class="active"><a href="#t-new" data-value="" data-toggle="tab">{:__('Add New')}</a></li>
+        </ul>
+    </div>
+    <div class="panel-body">
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade in active" id="t-new">
+                <form id="add-form" class="form-horizontal" role="form" data-toggle="validator" method="POST" action="">
+                    <div class="col-xs-12 col-sm-12">
+                        <div class="col-xs-12 col-md-12">
+                            <div class="form-group">
+                                <label for="c-sort_id">站点分类</label>
+                                <input type="text" name="row[sort_id]" data-source="ajax/sortlist" data-field="name"
+                                    data-rule="required" class="form-control selectpage" id="c-sort_id" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12">
+                            <div class="form-group">
+                                <label for="c-user_id">用户</label>
+                                <input type="text" name="row[user_id]" data-source="user/user/index"
+                                    class="form-control selectpage" data-field="username" data-rule="required"
+                                    id="c-user_id" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12">
+                            <div class="form-group">
+                                <label for="plans_type">{:__('自定义配置')}:</label>
+                                {:build_select('row[plans_type]', $plans_type, null, ['class'=>'form-control',
+                                'data-rule'=>'required','id'=>'c-plans_type'])}
+                            </div>
+                        </div>
+                        <!-- <div class="col-xs-12 col-md-12">
+                <div class="form-group">
+                    <label for="c-ip">IP</label>
+                    <input type="text" name="row[ip]" data-source="ipaddress/index" data-field="ip" class="form-control selectpage" id="c-ip" placeholder="" data-multiple="true">
+                </div>
+            </div> -->
+                        <!-- <div class="col-xs-12 col-md-12">
+                <div class="form-group">
+                    <label for="c-domain">域名</label>
+                    <input type="text" name="row[domain]" class="form-control selectpage" data-rule="required" data-source="domainlist/index" data-field="domain" data-primary-key="domain" id="c-domain" placeholder="">
+                </div>
+            </div> -->
+                        <div class="col-xs-12 col-md-12 plans_list">
+                            <div class="form-group">
+                                <label for="c-plans">资源套餐</label>
+                                <input type="text" name="row[plans]" class="form-control selectpage"
+                                    data-rule="" data-source="plans/index" id="c-plans" placeholder="">
+                            </div>
+                        </div>
+                        {foreach $siteList as $index=>$vo}
+                            {foreach $vo.list as $item}
+                            <div class="col-xs-12 col-md-12 plans_custom">
+                                <div class="form-group">
+                                    <label for="">{$item.title}</label>
+                                    {switch $item.type}
+                                    {case string}
+                                    <input {$item.extend} type="text" name="row[pack][{$item.name}]"
+                                        value="{$item.value|htmlentities}" class="form-control"
+                                        data-rule="{$item.rule}" />
+                                    <small class="text-info">{$item.tip}</small>
+                                    {/case}
+                                    {case text}
+                                    <textarea {$item.extend} name="row[pack][{$item.name}]" class="form-control"
+                                        data-rule="{$item.rule}" rows="5">{$item.value|htmlentities}</textarea>
+                                    <small class="text-info">{$item.tip}</small>
+                                    {/case}
+                                    {case editor}
+                                    <textarea {$item.extend} name="row[pack][{$item.name}]" id="editor-{$item.name}"
+                                        class="form-control editor" data-rule="{$item.rule}"
+                                        rows="5">{$item.value|htmlentities}</textarea>
+                                    <small class="text-info">{$item.tip}</small>
+                                    {/case}
+                                    {case array}
+                                    <dl class="fieldlist" data-name="row[pack][{$item.name}]">
+                                        <dd>
+                                            <ins>{:__('Array key')}</ins>
+                                            <ins>{:__('Array value')}</ins>
+                                        </dd>
+                                        <dd><a href="javascript:;" class="btn btn-sm btn-success btn-append"><i
+                                                    class="fa fa-plus"></i> {:__('Append')}</a></dd>
+                                        <textarea name="row[pack][{$item.name}]" class="form-control hide" cols="30"
+                                            rows="5">{$item.value|htmlentities}</textarea>
+                                    </dl>
+                                    {/case}
+                                    {case date}
+                                    <input {$item.extend} type="text" name="row[pack][{$item.name}]" value="{$item.value}"
+                                        class="form-control datetimepicker" data-date-format="YYYY-MM-DD"
+                                        data-rule="{$item.rule}" />
+                                    <small class="text-info">{$item.tip}</small>
+                                    {/case}
+                                    {case time}
+                                    <input {$item.extend} type="text" name="row[pack][{$item.name}]" value="{$item.value}"
+                                        class="form-control datetimepicker" data-date-format="HH:mm:ss"
+                                        data-rule="{$item.rule}" />
+                                    <small class="text-info">{$item.tip}</small>
+                                    {/case}
+                                    {case datetime}
+                                    <input {$item.extend} type="text" name="row[pack][{$item.name}]" value="{$item.value}"
+                                        class="form-control datetimepicker" data-date-format="YYYY-MM-DD HH:mm:ss"
+                                        data-rule="{$item.rule}" />
+                                    <small class="text-info">{$item.tip}</small>
+                                    {/case}
+                                    {case number}
+                                    <input {$item.extend} type="number" name="row[pack][{$item.name}]"
+                                        value="{$item.value}" class="form-control" data-rule="{$item.rule}" />
+                                    <small class="text-info">{$item.tip}</small>
+                                    {/case}
+                                    {case checkbox}
+                                    {foreach name="item.content" item="vo"}
+                                    <label for="row[pack][{$item.name}][]-{$key}"><input id="row[pack][{$item.name}][]-{$key}"
+                                            name="row[pack][{$item.name}][]" type="checkbox" value="{$key}" {in name="key"
+                                            value="$item.value" }checked{/in} /> {$vo}</label>
+                                    <small class="text-info">{$item.tip}</small>
+                                    {/foreach}
+                                    {/case}
+                                    {case radio}
+                                    {foreach name="item.content" item="vo"}
+                                    <label for="row[pack][{$item.name}]-{$key}"><input id="row[pack][{$item.name}]-{$key}"
+                                            name="row[pack][{$item.name}]" type="radio" value="{$key}" {in name="key"
+                                            value="$item.value" }checked{/in} /> {$vo}</label>
+                                    {/foreach}
+                                    <small class="text-info">{$item.tip}</small>
+                                    {/case}
+                                    {case value="select" break="0"}{/case}
+                                    {case value="selects"}
+                                    <select {$item.extend} name="row[pack][{$item.name}]{$item.type=='selects'?'[]':''}"
+                                        class="form-control selectpicker" {$item.type=='selects' ?'multiple':''}>
+                                        {foreach name="item.content" item="vo"}
+                                        <option value="{$key}" {in name="key" value="$item.value"
+                                            }selected{/in}>{$vo} </option> {/foreach} </select> <small
+                                            class="text-info">{$item.tip}</small>
+                                            {/case}
+                                            {case value="image" break="0" }{/case} {case value="images" }
+                                            <div class="form-inline">
+                                                <input id="c-{$item.name}" class="form-control" size="50"
+                                                    name="row[pack][{$item.name}]" type="text"
+                                                    value="{$item.value|htmlentities}">
+                                                <span><button type="button" id="plupload-{$item.name}"
+                                                        class="btn btn-danger plupload"
+                                                        data-input-id="c-{$item.name}" data-mimetype="image/*"
+                                                        data-multiple="{$item.type=='image'?'false':'true'}"
+                                                        data-preview-id="p-{$item.name}"><i
+                                                            class="fa fa-upload"></i>
+                                                        {:__('Upload')}</button></span>
+                                                <span><button type="button" id="fachoose-{$item.name}"
+                                                        class="btn btn-primary fachoose"
+                                                        data-input-id="c-{$item.name}" data-mimetype="image/*"
+                                                        data-multiple="{$item.type=='image'?'false':'true'}"><i
+                                                            class="fa fa-list"></i>
+                                                        {:__('Choose')}</button></span>
+                                                <span class="msg-box n-right" for="c-{$item.name}"></span>
+                                                <ul class="row list-inline plupload-preview" id="p-{$item.name}">
+                                                </ul>
+                                            </div>
+                                            <small class="text-info">{$item.tip}</small>
+                                            {/case}
+                                            {case value="file" break="0"}{/case}
+                                            {case value="files"}
+                                            <div class="form-inline">
+                                                <input id="c-{$item.name}" class="form-control" size="50"
+                                                    name="row[pack][{$item.name}]" type="text"
+                                                    value="{$item.value|htmlentities}">
+                                                <span><button type="button" id="plupload-{$item.name}"
+                                                        class="btn btn-danger plupload"
+                                                        data-input-id="c-{$item.name}"
+                                                        data-multiple="{$item.type=='file'?'false':'true'}"><i
+                                                            class="fa fa-upload"></i>
+                                                        {:__('Upload')}</button></span>
+                                                <span><button type="button" id="fachoose-{$item.name}"
+                                                        class="btn btn-primary fachoose"
+                                                        data-input-id="c-{$item.name}"
+                                                        data-multiple="{$item.type=='file'?'false':'true'}"><i
+                                                            class="fa fa-list"></i>
+                                                        {:__('Choose')}</button></span>
+                                                <span class="msg-box n-right" for="c-{$item.name}"></span>
+                                            </div>
+                                            <small class="text-info">{$item.tip}</small>
+                                            {/case}
+                                            {case switch}
+                                            <input id="c-{$item.name}" name="row[pack][{$item.name}]" type="hidden"
+                                                value="{:$item.value?1:0}">
+                                            <a href="javascript:;" data-toggle="switcher" class="btn-switcher"
+                                                data-input-id="c-{$item.name}" data-yes="1" data-no="0">
+                                                <i
+                                                    class="fa fa-toggle-on text-success {if !$item.value}fa-flip-horizontal text-gray{/if} fa-2x"></i>
+                                            </a>
+                                            <small class="text-info">{$item.tip}</small>
+                                            {/case}
+                                            {case bool}
+                                            <label for="row[pack][{$item.name}]-yes"><input id="row[pack][{$item.name}]-yes"
+                                                    name="row[pack][{$item.name}]" type="radio" value="1"
+                                                    {$item.value?'checked':''} />
+                                                {:__('Yes')}</label>
+                                            <label for="row[pack][{$item.name}]-no"><input id="row[pack][{$item.name}]-no"
+                                                    name="row[pack][{$item.name}]" type="radio" value="0"
+                                                    {$item.value?'':'checked'} />
+                                                {:__('No')}</label>
+                                            {/case}
+                                            <small class="text-info">{$item.tip}</small>
+                                            {case custom}
+                                            {$item.extend}
+                                            <small class="text-info">{$item.tip}</small>
+                                            {/case}
+                                            {/switch}
+                                </div>
+                            </div>
+                            {/foreach}
+                        {/foreach}
+                        <div class="col-xs-12 col-md-12">
+                            <div class="form-group">
+                                <label for="c-endtime">到期时间</label>
+                                <input id="c-endtime" data-rule="required" class="form-control datetimepicker"
+                                    data-date-format="YYYY-MM-DD" data-use-current="true" name="row[endtime]"
+                                    type="text" value="">
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12">
+                            <div class="form-group">
+                                <label for="sort">{:__('Status')}:</label>
+                                <div class="radio">
+                                    {foreach name="statusList" item="vo"}
+                                    <label for="row[status]-{$key}"><input id="row[status]-{$key}" name="row[status]"
+                                            type="radio" value="{$key}" {in name="key" value="normal" }checked{/in} />
+                                        {$vo}</label>
+                                    {/foreach}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group layer-footer">
+                        <label class="control-label col-xs-12 col-sm-2"></label>
+                        <div class="col-xs-12 col-sm-8">
+                            <button type="submit" class="btn btn-success btn-embossed disabled">{:__('OK')}</button>
+                            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="tab-pane fade" id="t-config">
+                
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,69 @@
+{extend name="common/base" /}
+{block name="content"}
+<div class="row">
+	<div class="col-md-12">
+		<div class="card" id="loading_box">
+			<div class="card-header">
+				<header class="card-title">
+					{:__('Run path')}
+				</header>
+			</div>
+			<div class="card-body">
+				<form action="" method="post">
+					<div class="form-group">
+						<label for="path">{:__('Current running directory')}：</label>
+						<input name="path" id="path" class="span3 form-control" value="{$runPath.runPath}" disabled="">
+					</div>
+					<div class="form-group">
+						<label for="dirs">{:__('Select run directory')}：</label>
+						<select name="dirs" id="dirs" class="form-control">
+							{volist name="$runPath.dirs" id="dirs"}
+							<option value="{$dirs}">{$dirs}</option>
+							{/volist}
+						</select>
+					</div>
+					<div class="form-group">
+						<input type="button" value="{:__('Save')}" class="btn btn-warning" onclick="set_path()">
+					</div>
+				</form>
+				<hr>
+				<small class="text-muted">
+					<li>{:__('Some programs need to specify a secondary directory as the running directory, such as ThinkPHP5, Laravel')}</li>
+					<li>{:__('Select your run directory, click save')}</li>
+				</small>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+	function set_path() {
+		dirs = $('#dirs').val();
+		if (!dirs) {
+			EchoMg('{:__("%s can not be empty",__("Dir"))}');
+			return false;
+		}
+		var l = $('#loading_box').lyearloading({
+			opacity: 0.125,
+			spinnerSize: 'lg'
+		});
+		$.post('{:url("index/vhost/setSiteRunPath")}', {
+				dirs: dirs
+			}, function (data, textStatus, xhr) {
+				if (data.code == 1) {
+					EchoMsg(data.msg, 1);
+				} else {
+					EchoMsg('error：' + data.msg, 1);
+				}
+			})
+			.fail(function () {
+				EchoMsg('{:__("Request error, please try again later")}');
+			})
+			.always(function () {
+				l.destroy();
+			})
+	}
+</script>
+{/block}

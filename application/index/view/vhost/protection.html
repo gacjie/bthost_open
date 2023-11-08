@@ -1,0 +1,115 @@
+{extend name="common/base" /}
+{block name="content"}
+<div class="row">
+	<div class="col-md-12">
+		<div class="card" id="loading_off">
+			<div class="card-header">
+				<header class="card-title">
+					{:__('Protection')}
+				</header>
+			</div>
+			<div class="card-body">
+
+				<table class="table table-bordered">
+					<thead>
+						<tr>
+							<th colspan="2">{:__('Status')}：
+								{if $GetSecurity['status'] }
+									<span style="color:green">{:__('Open')}</span><a href="javascript:ProtectionOff()">[{:__('Close')}]</a>
+									{else /}
+									<span style="color:#2288cc">{:__('Close')}</span>
+								{/if}
+							</th>
+						</tr>
+					</thead>
+				</table>
+
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+		<div class="card" id="loading_box">
+			<div class="card-header">
+				<header class="card-title">
+					{:__('Set protection')}
+				</header>
+			</div>
+			<div class="card-body">
+				<form action="" method="post">
+					<div class="form-group">
+						<label for="exampleFormControlInput1">{:__('URL suffix')}：</label>
+						<input name="sec_fix" class="form-control" id="sec_fix" class="span3"
+							value="{$GetSecurity['fix']}" {$GetSecurity['status'] ? 'disabled="disabled"' : '' }>
+						<small class="text-muted">{:__('Use commas to separate')}</small>
+					</div>
+					<div class="form-group">
+						<label for="exampleFormControlInput1">{:__('Licensed domain name')}：</label>
+						<input name="sec_domains" class="form-control" id="sec_domains" class="span3"
+							placeholder="{:__('Use commas to separate')}" value="{$GetSecurity['domains']}" {$GetSecurity['status']
+							? 'disabled="disabled"' : '' }>
+						<small class="text-muted">{:__('Use commas to separate')}</small>
+					</div>
+					<p>
+						<input type="button" value="{:__('Save')}" class="btn btn-warning" onclick="ProtectionSet()"
+							{$GetSecurity['status'] ? 'disabled="disabled"' : '' }>
+					</p>
+				</form>
+				<hr>
+				<small class="text-muted">
+					<span style="color:red">！</span> {:__('By default, resources are allowed to be directly accessed, that is, requests with empty HTTP_REFERER are not restricted')}<br>
+					<span style="color:red">！</span> {:__('Please use a comma (,) to separate multiple URL suffixes and domain names, such as: png,jpeg,zip,js')}<br>
+					<span style="color:red">！</span> {:__('When the anti-leech chain is triggered, it will directly return to the 404 status')}<br>
+				</small>
+			</div>
+		</div>
+	</div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+	function ProtectionSet() {
+		sec_fix = $('#sec_fix').val();
+		sec_domains = $('#sec_domains').val();
+		if (!sec_fix || !sec_domains) {
+			EchoMsg('{:__("Can not be empty")}');
+			return false;
+		}
+		var l = $('#loading_box').lyearloading({
+			opacity: 0.125,
+			spinnerSize: 'lg'
+		});
+		$.post('{:url("index/vhost/ProtectionSet")}', {
+				sec_fix: sec_fix,
+				sec_domains: sec_domains
+			}, function (res) {
+				EchoMsg(res.msg, 1);
+			})
+			.fail(function () {
+				EchoMsg('{:__("Request error, please try again later")}');
+			})
+			.always(function () {
+				l.destroy();
+			})
+	}
+
+	function ProtectionOff() {
+		var l = $('#loading_off').lyearloading({
+			opacity: 0.125,
+			spinnerSize: 'lg'
+		});
+		$.post('{:url("index/vhost/ProtectionOff")}', {
+				protection: 'off'
+			}, function (res) {
+				EchoMsg(res.msg, 1);
+			})
+			.fail(function () {
+				EchoMsg('{:__("Request error, please try again later")}');
+			})
+			.always(function () {
+				l.destroy();
+			})
+	}
+</script>
+{/block}

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {include file="common/meta" /}
+        <link rel="stylesheet" type="text/css" href="__CDN____STATIC__/Light-Year/css/materialdesignicons.min.css?v={$static_version}">
+        <link rel="stylesheet" type="text/css" href="__CDN____STATIC__/Light-Year/css/bootstrap.min.css?v={$static_version}">
+        <link rel="stylesheet" type="text/css" href="__CDN____STATIC__/Light-Year/js/bootstrap-multitabs/multitabs.min.css?v={$static_version}">
+        <link rel="stylesheet" type="text/css" href="__CDN____STATIC__/Light-Year/css/animate.min.css?v={$static_version}">
+        <link rel="stylesheet" type="text/css" href="__CDN____STATIC__/Light-Year/css/style.min.css?v={$static_version}">
+        <link rel="stylesheet" type="text/css" href="__CDN____STATIC__/Light-Year/js/jquery-confirm/jquery-confirm.min.css?v={$static_version}">
+
+        <!-- 自定义页眉 -->
+        {$site.console_head}
+
+        <!-- 自定义样式 -->
+        <style>
+            {$site.console_css}
+        </style>
+
+        <script>
+            //将Config渲染到全局
+            window.Config = require.config;
+        </script>
+    </head>
+
+    <body>
+        <div class="lyear-layout-web">
+        <div class="lyear-layout-container">
+            <!--左侧导航-->
+            <aside class="lyear-layout-sidebar">
+
+            <!-- logo -->
+            <div id="logo" class="sidebar-header">
+                <a href="{:url('/')}"><img src="{$Think.config.site.logo}" title="LightYear" alt="LightYear" /></a>
+            </div>
+            <div class="lyear-layout-sidebar-info lyear-scroll">
+
+                <!-- 导航 -->
+                {include file="common/sidenav" }
+
+                <div class="sidebar-footer">
+                    {$Think.config.site.main_left_notice}
+                <p class="copyright">Copyright &copy;
+                    <script>
+                        var date = new Date();
+                        document.write(date.getFullYear());
+                    </script>
+                    <a target="_blank" href="{:url('/')}">btHost</a> All rights reserved.</p>
+                </div>
+            </div>
+
+            </aside>
+            <!--End 左侧导航-->
+
+            <!--头部信息-->
+            <header class="lyear-layout-header">
+
+                <nav class="navbar">
+
+                <div class="navbar-left">
+                    <div class="lyear-aside-toggler">
+                    <span class="lyear-toggler-bar"></span>
+                    <span class="lyear-toggler-bar"></span>
+                    <span class="lyear-toggler-bar"></span>
+                    </div>
+                </div>
+
+                <ul class="navbar-right d-flex align-items-center">
+                    <li class="dropdown language" data-lang="{$Think.cookie.think_var}">
+                        <span class="icon-item" data-toggle="tooltip" data-original-title="Click on close" data-placement="bottom">
+                            <svg t="1609309685662" class="icon" viewBox="0 0 1966 1024" version="1.1"
+                                xmlns="http://www.w3.org/2000/svg" p-id="4606" width="32" height="32">
+                                <path
+                                    d="M1837.17888 63.61088h-641.4336l-8.72448 38.5024h650.15808a90.5216 90.5216 0 0 1 90.39872 90.68544v606.45376c0 49.9712-40.67328 90.68544-90.39872 90.68544H1005.9776l-8.72448 38.5024h839.92576A129.10592 129.10592 0 0 0 1966.08 799.5392V192.79872a129.18784 129.18784 0 0 0-128.90112-129.18784z"
+                                    p-id="4607" fill="#1296db"></path>
+                                <path
+                                    d="M1210.49088 0l-227.7376 991.76448H109.7728A109.7728 109.7728 0 0 1 0 881.99168V109.7728C0 49.152 49.152 0 109.7728 0h1100.71808zM597.48352 204.8h-64.55296v120.4224H327.68v249.856h58.5728v-29.4912h146.67776v202.05568h64.55296V545.5872h155.56608v29.4912h46.77632v-249.856h-202.3424V204.8zM532.0704 378.30656v114.03264H386.2528V378.30656h145.8176z m220.9792 2.048v111.98464h-156.79488V380.35456h156.79488zM1771.1104 666.29632v-125.91104c0-26.46016-1.35168-43.95008-4.096-51.6096a36.2496 36.2496 0 0 0-36.33152-24.82176c-10.89536 0-21.54496 2.99008-30.3104 9.25696a47.59552 47.59552 0 0 0-18.55488 24.576c-3.2768 10.11712-4.9152 29.24544-4.9152 56.5248v111.98464h-65.24928v-246.33344h60.6208v36.0448c21.54496-27.8528 48.57856-41.7792 81.1008-41.7792 13.63968-0.24576 27.0336 2.4576 39.3216 7.65952 12.00128 5.20192 21.01248 11.75552 27.0336 19.94752 5.98016 8.192 10.36288 17.44896 12.53376 27.56608 2.4576 10.11712 3.56352 24.86272 3.56352 43.70432v153.1904h-64.7168zM1295.68768 326.0416h252.3136v57.63072h-183.5008v75.3664h170.68032v57.344h-170.68032v92.5696h190.0544v57.344h-258.8672V326.0416z"
+                                    p-id="4608" fill="#1296db"></path>
+                            </svg>
+                        </span>
+                    </li>
+                    {notempty name="Think.config.site.public_head_notice"}
+                    <li class="dropdown dropdown-notice">
+                    <span data-toggle="dropdown" class="icon-item">
+                        <i class="mdi mdi-bell-outline"></i>
+                        <span class="badge badge-danger">N</span>
+                    </span>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <div class="lyear-notifications">
+
+                        <div class="lyear-notifications-info lyear-scroll">
+                            {$Think.config.site.public_head_notice}
+                        </div>
+
+                        </div>
+                    </div>
+                    </li>
+                    {/notempty}
+                    <!--切换主题配色-->
+                    <li class="dropdown dropdown-skin">
+                    <span data-toggle="dropdown" class="icon-item"><i class="mdi mdi-palette"></i></span>
+                    <ul class="dropdown-menu dropdown-menu-right" data-stopPropagation="true">
+                        <li class="drop-title"><p>LOGO</p></li>
+                        <li class="drop-skin-li clearfix">
+                        <span class="inverse">
+                            <input type="radio" name="logo_bg" value="default" id="logo_bg_1" checked>
+                            <label for="logo_bg_1"></label>
+                        </span>
+                        <span>
+                            <input type="radio" name="logo_bg" value="color_2" id="logo_bg_2">
+                            <label for="logo_bg_2"></label>
+                        </span>
+                        <span>
+                            <input type="radio" name="logo_bg" value="color_3" id="logo_bg_3">
+                            <label for="logo_bg_3"></label>
+                        </span>
+                        <span>
+                            <input type="radio" name="logo_bg" value="color_4" id="logo_bg_4">
+                            <label for="logo_bg_4"></label>
+                        </span>
+                        <span>
+                            <input type="radio" name="logo_bg" value="color_5" id="logo_bg_5">
+                            <label for="logo_bg_5"></label>
+                        </span>
+                        <span>
+                            <input type="radio" name="logo_bg" value="color_6" id="logo_bg_6">
+                            <label for="logo_bg_6"></label>
+                        </span>
+                        <span>
+                            <input type="radio" name="logo_bg" value="color_7" id="logo_bg_7">
+                            <label for="logo_bg_7"></label>
+                        </span>
+                        <span>
+                            <input type="radio" name="logo_bg" value="color_8" id="logo_bg_8">
+                            <label for="logo_bg_8"></label>
+                        </span>
+                        </li>
+                        <li class="drop-title"><p>{:__('Head')}</p></li>
+                        <li class="drop-skin-li clearfix">
+                        <span class="inverse">
+                            <input type="radio" name="header_bg" value="default" id="header_bg_1" checked>
+                            <label for="header_bg_1"></label>                      
+                        </span>
+                        <span>
+                            <input type="radio" name="header_bg" value="color_2" id="header_bg_2">
+                            <label for="header_bg_2"></label>                      
+                        </span>
+                        <span>
+                            <input type="radio" name="header_bg" value="color_3" id="header_bg_3">
+                            <label for="header_bg_3"></label>
+                        </span>
+                        <span>
+                            <input type="radio" name="header_bg" value="color_4" id="header_bg_4">
+                            <label for="header_bg_4"></label>                      
+                        </span>
+                        <span>
+                            <input type="radio" name="header_bg" value="color_5" id="header_bg_5">
+                            <label for="header_bg_5"></label>                      
+                        </span>
+                        <span>
+                            <input type="radio" name="header_bg" value="color_6" id="header_bg_6">
+                            <label for="header_bg_6"></label>                      
+                        </span>
+                        <span>
+                            <input type="radio" name="header_bg" value="color_7" id="header_bg_7">
+                            <label for="header_bg_7"></label>
+                        </span>
+                        <span>
+                            <input type="radio" name="header_bg" value="color_8" id="header_bg_8">
+                            <label for="header_bg_8"></label>
+                        </span>
+                        </li>
+                        <li class="drop-title"><p>{:__('Sidebar')}</p></li>
+                        <li class="drop-skin-li clearfix">
+                        <span class="inverse">
+                            <input type="radio" name="sidebar_bg" value="default" id="sidebar_bg_1" checked>
+                            <label for="sidebar_bg_1"></label>
+                        </span>
+                        <span>
+                            <input type="radio" name="sidebar_bg" value="color_2" id="sidebar_bg_2">
+                            <label for="sidebar_bg_2"></label>
+                        </span>
+                        <span>
+                            <input type="radio" name="sidebar_bg" value="color_3" id="sidebar_bg_3">
+                            <label for="sidebar_bg_3"></label>
+                        </span>
+                        <span>
+                            <input type="radio" name="sidebar_bg" value="color_4" id="sidebar_bg_4">
+                            <label for="sidebar_bg_4"></label>
+                        </span>
+                        <span>
+                            <input type="radio" name="sidebar_bg" value="color_5" id="sidebar_bg_5">
+                            <label for="sidebar_bg_5"></label>
+                        </span>
+                        <span>
+                            <input type="radio" name="sidebar_bg" value="color_6" id="sidebar_bg_6">
+                            <label for="sidebar_bg_6"></label>
+                        </span>
+                        <span>
+                            <input type="radio" name="sidebar_bg" value="color_7" id="sidebar_bg_7">
+                            <label for="sidebar_bg_7"></label>
+                        </span>
+                        <span>
+                            <input type="radio" name="sidebar_bg" value="color_8" id="sidebar_bg_8">
+                            <label for="sidebar_bg_8"></label>
+                        </span>
+                        </li>
+                    </ul>
+                    </li>
+                    <!--切换主题配色-->
+                    <li class="dropdown dropdown-profile">
+                    <a href="javascript:void(0)" data-toggle="dropdown" class="dropdown-toggle">
+                        <img class="img-avatar img-avatar-48 m-r-10" src="{$user.avatar|default='/favicon.png'}" alt="{$user.username}" />
+                        <span>{$user.username}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li>
+                        <a class="multitabs dropdown-item" data-url="{:url('index/vhost/pass')}" href="javascript:void(0)"><i class="mdi mdi-lock-outline"></i> {:__('Reset password')}</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" data-url="{:url('index/user/index')}" href="{:url('index/user/index')}"><i class="mdi mdi-camera-switch"></i> {:__('Switch site')}</a>
+                        </li>
+                        <li>
+                        <a class="dropdown-item btn_clear_cache" href="javascript:void(0)"><i class="mdi mdi-delete"></i> {:__('Clear cache')}</a>
+                        </li>
+                        <li class="dropdown-divider"></li>
+                        <li>
+                        <a class="dropdown-item" href="{:url('index/user/logout')}"><i class="mdi mdi-logout-variant"></i> {:__('Logout')}</a>
+                        </li>
+                    </ul>
+                    </li>
+                </ul>
+
+                </nav>
+
+            </header>
+            <!--End 头部信息-->
+
+            <!--页面主要内容-->
+            <main class="lyear-layout-content">
+
+            <div id="iframe-content"></div>
+
+            </main>
+            <!--End 页面主要内容-->
+        </div>
+        </div>
+        <!-- 引入js -->
+        {include file="common/script" /}
+        {block name="script"}{/block}
+        <!-- 自定义页脚 -->
+        {$site.console_foot}
+
+    </body>
+
+</html>
+<!-- {__CONTENT__} -->

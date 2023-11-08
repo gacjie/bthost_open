@@ -1,0 +1,42 @@
+<div class="panel panel-default panel-intro">
+    {:build_heading()}
+
+    <div class="panel-body">
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade active in" id="one">
+                <div class="widget-body no-padding">
+                    <div id="toolbar" class="toolbar">
+                        {:build_toolbar('refresh,edit')}
+                        <a class="btn btn-info btn-primary btn-dialog" title="{:__('任务日志')}" data-params="logs"
+                            data-url="general/queue/getLogs" href="javascript:;"><i class="fa fa-leaf"></i>
+                            执行明细</a>
+                        <a class="btn btn-info btn-warning btn-dialog" title="{:__('任务日志')}" data-params="logs"
+                            data-url="general/queue/detail" href="javascript:;"><i class="fa fa-leaf"></i>
+                            详细日志</a>
+                        <a class="btn btn-danger btn-primary btn-clear" href="javascript:;"
+                            data-original-title="当日志过多时可以选择全部清空" data-toggle="tooltip"><i class="fa fa-trash-o"></i>
+                            清空日志</a>
+                        <a class="btn btn-info btn-primary btn-queue" href="javascript:;"><i
+                                class="fa fa-fa"></i>
+                            监控地址</a>
+                        
+                        <!-- <a class="btn btn-warning btn-primary btn-help" href="javascript:;" data-original-title="点我了解如何使用计划任务监控" data-toggle="tooltip"><i
+                                class="fa fa-question-circle"></i>
+                            如何使用</a> -->
+
+                        <!-- <a class="btn btn-success btn-change btn-deployment" data-url="general/queue/deployment"
+                            href="javascript:;" data-original-title="一键添加到计划任务自动执行" data-toggle="tooltip"><i
+                                class="fa fa-leaf"></i>
+                            一键监控</a> -->
+                    </div>
+                    
+                    <table id="table" class="table table-striped table-bordered table-hover"
+                        data-operate-edit="general/queue/edit" width="100%">
+                    </table>
+                    
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

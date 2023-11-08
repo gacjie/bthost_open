@@ -1,0 +1,14 @@
+{
+  "name": "fastadmin-selectpage",
+  "homepage": "https://github.com/karsonzhang/fastadmin-selectpage",
+  "version": "1.0.3",
+  "_release": "1.0.3",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.0.3",
+    "commit": "9f91338c7a523fb8fea159a93ee3ba6cb5cbc3d0"
+  },
+  "_source": "https://github.com/karsonzhang/fastadmin-selectpage.git",
+  "_target": "~1.0.0",
+  "_originalSource": "fastadmin-selectpage"
+}
